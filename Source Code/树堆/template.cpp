@@ -46,14 +46,12 @@ inline void printOut(INT x)
 	{
 		buffer[length++] = x % 10 + '0';
 		x /= 10;
-	}
-	while (x);
+	} while (x);
 	if (minus) buffer[length++] = '-';
 	do
 	{
 		putchar(buffer[--length]);
-	}
-	while (length);
+	} while (length);
 	putchar('\n');
 }
 
@@ -63,7 +61,7 @@ struct Treap
 	static ULL randEx()
 	{
 #define r(x) (ULL(rand()) << x)
-		return r(0);
+		return r(15) | r(0);
 #undef r
 	}
 	struct Node
@@ -135,7 +133,7 @@ struct Treap
 			r = new Node();
 			r->ch[0] = r->ch[1] = null;
 			r->v = x;
-			r->s = 1;
+			r->maintain();
 			return;
 		}
 		INT d = r->comp(x);
@@ -145,44 +143,42 @@ struct Treap
 		if (r->ch[d]->r > r->r)
 			rotate(r, d ^ 1);
 	}
-	bool erase(const T x)
+	void erase(const T x)
 	{
 		erase(root, x);
 	}
-	bool erase(Node* &r, const T x)
+	void erase(Node* &r, const T x)
 	{
-		if(r == null) return false;
+		if (r == null) return;
 		INT d = r->comp(x);
-		bool bRet = false;
-		if(d == -1)
+		if (d == -1)
 		{
-			if(r->ch[0] == null)
+			if (r->ch[0] == null)
 			{
 				Node* k = r;
 				r = r->ch[1];
-				if(k != null) delete k;
-				return true;
+				if (k != null) delete k;
+				return;
 			}
-			else if(r->ch[1] == null)
+			else if (r->ch[1] == null)
 			{
 				Node* k = r;
 				r = r->ch[0];
-				if(k != null) delete k;
-				return true;
+				if (k != null) delete k;
+				return;
 			}
 			else
 			{
 				INT d2 = r->ch[0]->r < r->ch[1]->r;
 				rotate(r, d2 ^ 1);
-				bRet = erase(r->ch[d2], x);
+				erase(r->ch[d2 ^ 1], x);
 			}
 		}
 		else
 		{
-			bRet = erase(r->ch[d], x);
+			erase(r->ch[d], x);
 		}
 		r->maintain();
-		return bRet;
 	}
 	INT size()
 	{
@@ -193,7 +189,6 @@ struct Treap
 void run()
 {
 	Treap<INT> set;
-//	std::set<INT> set;
 	INT n = readIn();
 	while (n--)
 	{
@@ -203,7 +198,7 @@ void run()
 		else if (ins == 2)
 		{
 			INT x = readIn();
-			if(!set.count(x))
+			if (!set.count(x))
 			{
 				printOut(0);
 			}
