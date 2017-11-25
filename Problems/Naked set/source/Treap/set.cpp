@@ -56,7 +56,7 @@ inline void printOut(INT x)
 }
 
 template <typename T>
-struct Treap
+class Treap
 {
 	static ULL randEx()
 	{
@@ -84,6 +84,7 @@ struct Treap
 	};
 	Node *null, *root;
 
+public:
 	Treap()
 	{
 		null = new Node;
@@ -91,42 +92,42 @@ struct Treap
 	}
 	~Treap()
 	{
-		clear(root);
+		clear();
 		delete null;
 	}
+
+private:
 	void clear(Node* r)
 	{
-		if (r == null)
-			return;
-		clear(r->ch[0]);
-		clear(r->ch[1]);
+		if (r == null) return;
+		clear(r->ch[0]); clear(r->ch[1]);
 		delete r;
 	}
+public:
+	void clear() { clear(root); }
+
+private:
 	void rotate(Node* &r, INT d)
 	{
 		Node* k = r->ch[d ^ 1];
-		r->ch[d ^ 1] = k->ch[d];
-		r->maintain();
-		k->ch[d] = r;
+		r->ch[d ^ 1] = k->ch[d]; k->ch[d] = r;
+		r->maintain(); k->maintain();
 		r = k;
-		r->maintain();
 	}
-	bool count(const T x)
-	{
-		return count(root, x);
-	}
-	bool count(Node* r, const T x)
+
+private:
+	bool count(Node* r, const T& x)
 	{
 		if (r == null) return false;
 		INT d = r->comp(x);
 		if (d == -1) return true;
 		return count(r->ch[d], x);
 	}
-	void insert(const T x)
-	{
-		insert(root, x);
-	}
-	void insert(Node* &r, const T x)
+public:
+	bool count(const T x) { return count(root, x); }
+
+private:
+	void insert(Node* &r, const T& x)
 	{
 		if (r == null)
 		{
@@ -143,28 +144,22 @@ struct Treap
 		if (r->ch[d]->r > r->r)
 			rotate(r, d ^ 1);
 	}
-	void erase(const T x)
-	{
-		erase(root, x);
-	}
-	void erase(Node* &r, const T x)
+public:
+	void insert(const T x) { insert(root, x); }
+
+private:
+	void erase(Node* &r, const T& x)
 	{
 		if (r == null) return;
 		INT d = r->comp(x);
 		if (d == -1)
 		{
-			if (r->ch[0] == null)
+			if (r->ch[0] == null || r->ch[1] == null)
 			{
 				Node* k = r;
-				r = r->ch[1];
-				if (k != null) delete k;
-				return;
-			}
-			else if (r->ch[1] == null)
-			{
-				Node* k = r;
-				r = r->ch[0];
-				if (k != null) delete k;
+				if (r->ch[0] != null) r = r->ch[0];
+				else r = r->ch[1];
+				delete k;
 				return;
 			}
 			else
@@ -175,15 +170,41 @@ struct Treap
 			}
 		}
 		else
-		{
 			erase(r->ch[d], x);
-		}
 		r->maintain();
 	}
-	INT size()
+public:
+	void erase(const T x) { erase(root, x); }
+
+public:
+	INT size() { return root->s; }
+
+private:
+	bool kth(Node* r, INT k, T& ret)
 	{
-		return root->s;
+		if (r == null || k <= 0 || k > r->s) return false;
+		INT s = r->ch[0]->s;
+		if (k == s + 1)
+		{
+			ret = r->v;
+			return true;
+		}
+		if (k <= s) return kth(r->ch[0], k, ret);
+		else return kth(r->ch[1], k - s - 1, ret);
 	}
+public:
+	bool kth(INT k, T& ret) { return kth(root, k, ret); }
+
+private:
+	INT rank(Node* r, INT accum, const T& x)
+	{
+		if (r == null) return 0;
+		INT d = r->comp(x);
+		if (d == -1) return accum + r->ch[0]->s + 1;
+		return rank(r->ch[d], accum + d * (r->ch[0]->s + 1), x);
+	}
+public:
+	INT rank(const T x) { return rank(rank, 0, x); }
 };
 
 void run()
