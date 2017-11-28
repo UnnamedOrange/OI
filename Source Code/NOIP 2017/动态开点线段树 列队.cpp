@@ -77,7 +77,7 @@ class SegTree
 	};
 	Node* root;
 	Node* null;
-	
+
 #define PARAM Node* &node, INT l, INT r
 #define DEF INT mid = (l + r) >> 1;
 #define CNT node, l, r
@@ -88,7 +88,7 @@ class SegTree
 
 	Node* alloc(Node* &node)
 	{
-		if(node == null)
+		if (node == null)
 		{
 			node = new Node;
 			node->ch[0] = node->ch[1] = null;
@@ -103,7 +103,7 @@ class SegTree
 	}
 	void pushdown(PARAM)
 	{
-		if(node->lazy)
+		if (node->lazy)
 		{
 			DEF;
 			cover(LC, node->lazy);
@@ -115,31 +115,31 @@ class SegTree
 	{
 		node->sum = node->ch[0]->sum + node->ch[1]->sum;
 	}
-	
+
 	void add(PARAM)
 	{
 		alloc(node);
-		if(g_L <= l && r <= g_R)
+		if (g_L <= l && r <= g_R)
 		{
 			cover(CNT, g_Val);
 			return;
 		}
 		DEF;
 		pushdown(CNT);
-		if(g_L <= mid) add(LC);
-		if(g_R > mid) add(RC);
+		if (g_L <= mid) add(LC);
+		if (g_R > mid) add(RC);
 		update(CNT);
 	}
-	
+
 public:
 	SegTree()
 	{
 		null = new Node;
 		root = null->ch[0] = null->ch[1] = null;
 	}
-	
-	
-	
+
+
+
 };
 
 void run()
@@ -148,7 +148,7 @@ void run()
 	m = readIn();
 	q = readIn();
 	size = n + q;
-	for(int i = 1; i <= q; i++)
+	for (int i = 1; i <= q; i++)
 		querys[i].read();
 }
 
