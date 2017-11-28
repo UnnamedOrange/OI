@@ -12,7 +12,7 @@
 #include <map>
 #include <set>
 #include <bitset>
-typedef int INT;
+typedef long long INT;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -51,29 +51,19 @@ inline void printOut(INT x)
 	{
 		putchar(buffer[--length]);
 	} while (length);
+	putchar('\n');
 }
 
 const INT maxn = INT(3e5) + 5;
 INT n, m, q;
-INT size;
-struct Query
-{
-	INT x;
-	INT y;
-	void read()
-	{
-		x = readIn();
-		y = readIn();
-	}
-} querys[maxn];
 class SegTree
 {
 	struct Node
 	{
 		INT sum;
-		INT lazy;
+		INT val;
 		Node* ch[2];
-		Node() : sum(), lazy() {}
+		Node() : sum(), val() {}
 	};
 	Node* root;
 	Node* null;
@@ -84,7 +74,7 @@ class SegTree
 #define LC node->ch[0], l, mid
 #define RC node->ch[1], mid + 1, r
 
-	INT g_L, g_R, g_Val;
+	INT g_Pos, g_Val;
 
 	Node* alloc(Node* &node)
 	{
@@ -95,40 +85,36 @@ class SegTree
 		}
 		return node;
 	}
-	void cover(PARAM, INT v)
+	INT findKth(PARAM, INT k, INT& pos)
 	{
 		alloc(node);
-		node->sum += (r - l + 1) * v;
-		node->lazy += v;
-	}
-	void pushdown(PARAM)
-	{
-		if (node->lazy)
+		if (l == r)
 		{
-			DEF;
-			cover(LC, node->lazy);
-			cover(RC, node->lazy);
-			node->lazy = 0;
+			pos = l;
+			node->sum = 1;
+			return node->val;
 		}
-	}
-	void update(PARAM)
-	{
+		DEF;
+		INT s1 = (mid - l + 1) - node->ch[0]->sum;
+		INT ret;
+		if (k <= s1) ret = findKth(LC, k, pos);
+		else ret = findKth(RC, k - s1, pos);
 		node->sum = node->ch[0]->sum + node->ch[1]->sum;
+		return ret;
 	}
-
-	void add(PARAM)
+	void insert(PARAM)
 	{
 		alloc(node);
-		if (g_L <= l && r <= g_R)
+		if (l == r)
 		{
-			cover(CNT, g_Val);
+			node->sum = 0;
+			node->val = g_Val;
 			return;
 		}
 		DEF;
-		pushdown(CNT);
-		if (g_L <= mid) add(LC);
-		if (g_R > mid) add(RC);
-		update(CNT);
+		if (g_Pos <= mid) insert(LC);
+		else insert(RC);
+		node->sum = node->ch[0]->sum + node->ch[1]->sum;
 	}
 
 public:
@@ -137,19 +123,59 @@ public:
 		null = new Node;
 		root = null->ch[0] = null->ch[1] = null;
 	}
+	INT kth(INT k, INT& pos)
+	{
+		return findKth(root, 1, n + q, k, pos);
+	}
+	void insert(INT pos, INT val)
+	{
+		g_Pos = pos;
+		g_Val = val;
+		insert(root, 1, n + q);
+	}
+} trees[maxn], colum;
 
-
-
-};
+INT size[maxn];
 
 void run()
 {
 	n = readIn();
 	m = readIn();
 	q = readIn();
-	size = n + q;
+	for (int i = 1; i <= n; i++)
+		size[i] = m - 1;
+	size[n + 1] = n;
+
 	for (int i = 1; i <= q; i++)
-		querys[i].read();
+	{
+		INT x = readIn();
+		INT y = readIn();
+		if (y == m)
+		{
+			INT pos;
+			INT ans = colum.kth(x, pos);
+			if (pos <= n)
+				ans = m * pos;
+			colum.insert(++size[n + 1], ans);
+
+			printOut(ans);
+		}
+		else
+		{
+			INT pos1;
+			INT ans = trees[x].kth(y, pos1);
+			if (pos1 < m)
+				ans = m * (x - 1) + pos1;
+			INT pos2;
+			INT ins = colum.kth(x, pos2);
+			if (pos2 <= n)
+				ins = m * pos2;
+			trees[x].insert(++size[x], ins);
+			colum.insert(++size[n + 1], ans);
+
+			printOut(ans);
+		}
+	}
 }
 
 int main()
