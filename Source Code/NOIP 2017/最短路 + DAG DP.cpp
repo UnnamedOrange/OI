@@ -65,7 +65,7 @@ struct Edge
 	INT cost;
 	INT next;
 } edges[maxm], edgesT[maxm];
-INT head[maxn], headT[maxm];
+INT head[maxn], headT[maxm]; //G and GT
 INT count_;
 void addEdge(INT from, INT to, INT cost)
 {
@@ -80,9 +80,12 @@ void addEdge(INT from, INT to, INT cost)
 	edgesT[count_].next = headT[to];
 	headT[to] = count_;
 }
-INT d;
-INT minC;
+INT d; //no use
+INT minC; //for cheat
 
+		  //a mess, so comment is needed
+
+		  //shortest path, dis means 1 to others, disT means n to others
 namespace SP
 {
 	INT dis[maxn];
@@ -116,6 +119,7 @@ namespace SP
 		}
 	} q;
 	INT s;
+	//bad code
 	void SPFA()
 	{
 		memset(vis, 0, sizeof(vis));
@@ -182,113 +186,15 @@ namespace SP
 };
 
 #define RunInstance(x) delete new x
-struct cheat1
-{
-	INT topo[maxn];
-	bool vis[maxn];
-	void dfs(INT node)
-	{
-		using namespace SP;
-		vis[node] = true;
-		for (int i = head[node]; i; i = edges[i].next)
-		{
-			Edge& e = edges[i];
-			INT to = e.to;
-			INT c = e.cost;
-			if (dis[node] + c == dis[to] && !vis[to])
-			{
-				dfs(to);
-			}
-		}
-		topo[++topo[0]] = node;
-	}
-
-	INT f[maxn];
-	cheat1() : f(), vis()
-	{
-		using namespace SP;
-		topo[0] = 0;
-		dfs(1);
-
-		f[1] = 1;
-		for (int i = topo[0]; i >= 1; i--)
-		{
-			INT node = topo[i];
-			for (int j = head[node]; j; j = edges[j].next)
-			{
-				Edge& e = edges[j];
-				INT to = e.to;
-				INT c = e.cost;
-				if (dis[node] + c == dis[to])
-				{
-					f[to] = (f[to] + f[node]) % mod;
-				}
-			}
-		}
-		printOut(f[n]);
-	}
-};
-struct cheat2
-{
-	INT topo[maxn];
-	bool vis[maxn];
-	void dfs(INT node)
-	{
-		using namespace SP;
-		vis[node] = true;
-		for (int i = head[node]; i; i = edges[i].next)
-		{
-			Edge& e = edges[i];
-			INT to = e.to;
-			INT c = e.cost;
-			if (dis[node] + c == dis[to] && !vis[to])
-			{
-				dfs(to);
-			}
-		}
-		topo[++topo[0]] = node;
-	}
-
-	INT f[maxk][maxn];
-	cheat2() : f(), vis()
-	{
-		using namespace SP;
-		topo[0] = 0;
-		dfs(1);
-
-		f[0][1] = 1;
-		for (int k = 0; k <= K; k++)
-		{
-			for (int i = topo[0]; i >= 1; i--)
-			{
-				INT node = topo[i];
-				for (int j = head[node]; j; j = edges[j].next)
-				{
-					Edge& e = edges[j];
-					INT to = e.to;
-					INT c = e.cost;
-					INT s2 = k + dis[node] + c - dis[to];
-					if (s2 <= K)
-					{
-						f[s2][to] = (f[s2][to] + f[k][node]) % mod;
-					}
-				}
-			}
-		}
-
-		INT ans = 0;
-		for (int i = 0; i <= K; i++)
-			ans = (ans + f[i][n]) % mod;
-		printOut(ans);
-	}
-};
 struct work
 {
 	INT topo[maxn];
 	INT inDegree[maxn];
 	bool vis[maxn];
 	INT found;
-	void BFS()
+	//if a vertex on a "0 ring" is valid (dis[i] + disT[i] <= dis[1] + K), print -1
+	//use topo sort to find vertexes on "0 ring"
+	void BFS() //topo sort
 	{
 		using namespace SP;
 		for (int i = 1; i <= n; i++)
@@ -348,18 +254,19 @@ struct work
 			printOut(-1);
 			return;
 		}
-		f[0][1] = 1;
 
-		for (int i = 1; i <= topo[0]; i++)
+		//otherwise, this is a DAG
+		f[0][1] = 1;
+		for (int k = 0; k <= K; k++)
 		{
-			INT node = topo[i];
-			for (int j = head[node]; j; j = edges[j].next)
+			for (int i = 1; i <= topo[0]; i++)
 			{
-				Edge& e = edges[j];
-				INT to = e.to;
-				INT c = e.cost;
-				for (int k = 0; k <= K; k++)
+				INT node = topo[i];
+				for (int j = head[node]; j; j = edges[j].next)
 				{
+					Edge& e = edges[j];
+					INT to = e.to;
+					INT c = e.cost;
 					INT s2 = k + dis[node] + c - dis[to];
 					if (s2 <= K)
 					{
@@ -399,11 +306,6 @@ void run()
 		}
 		d = SP::goSP();
 
-		//if (!K)
-		//	RunInstance(cheat1);
-		//else if (minC)
-		//RunInstance(cheat2);
-		//else
 		RunInstance(work);
 	}
 }
