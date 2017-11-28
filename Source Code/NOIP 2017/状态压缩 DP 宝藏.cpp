@@ -62,6 +62,8 @@ INT rect[maxn][maxn];
 INT f[maxn][1 << 12];
 INT count1[1 << 12];
 
+INT minVal[maxn][1 << 12];
+
 void run()
 {
 	n = readIn();
@@ -82,6 +84,20 @@ void run()
 	for (int i = 0; i < n; i++)
 		f[0][1 << i] = 0;
 
+	memset(minVal, 0x3f, sizeof(minVal));
+	for (int S = 1; S < U; S++)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			if (S & (1 << i)) continue;
+			for (int j = 0; j < n; j++)
+			{
+				if (!(S & (1 << j))) continue;
+				minVal[i][S] = std::min(minVal[i][S], rect[j][i]);
+			}
+		}
+	}
+
 	for (int i = 0; i < n; i++)
 	{
 		for (int S = 1; S < U; S++)
@@ -93,18 +109,13 @@ void run()
 				for (int j = 0; j < n; j++)
 				{
 					if (!((S ^ S0) & (1 << j))) continue;
-					INT minVal = INF;
-					for (int k = 0; k < n; k++)
-					{
-						if (!(S0 & (1 << k))) continue;
-						minVal = std::min(minVal, rect[j][k]);
-					}
-					if (minVal >= INF)
+					INT mv = minVal[j][S0];
+					if (mv >= INF)
 					{
 						sum = -1;
 						break;
 					}
-					sum += minVal * (i + 1);
+					sum += mv * (i + 1);
 				}
 				if (sum == -1) continue;
 				f[i + 1][S] = std::min(f[i + 1][S], f[i][S0] + sum);
