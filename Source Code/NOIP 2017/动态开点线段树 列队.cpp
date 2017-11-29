@@ -60,78 +60,78 @@ class SegTree
 {
 	struct Node
 	{
-		INT sum;
+		INT size;
 		INT val;
-		Node* ch[2];
-		Node() : sum(), val() {}
+		Node* lc;
+		Node* rc;
+		Node() : size(), val(), lc(), rc() {}
 	};
-	Node* root;
 	Node* null;
+	Node* root;
 
-#define PARAM Node* &node, INT l, INT r
-#define DEF INT mid = (l + r) >> 1;
+#define DEF INT mid = (l + r) >> 1
 #define CNT node, l, r
-#define LC node->ch[0], l, mid
-#define RC node->ch[1], mid + 1, r
+#define LC node->lc, l, mid
+#define RC node->rc, mid + 1, r
+#define PARAM Node* &node, INT l, INT r
 
-	INT g_Pos, g_Val;
-
-	Node* alloc(Node* &node)
+	void alloc(Node* &r)
 	{
-		if (node == null)
+		if (r == null)
 		{
-			node = new Node;
-			node->ch[0] = node->ch[1] = null;
+			r = new Node;
+			r->lc = r->rc = null;
 		}
-		return node;
 	}
 	INT findKth(PARAM, INT k, INT& pos)
 	{
 		alloc(node);
 		if (l == r)
 		{
+			node->size = 1;
 			pos = l;
-			node->sum = 1;
 			return node->val;
 		}
 		DEF;
-		INT s1 = (mid - l + 1) - node->ch[0]->sum;
+		INT s = mid - l + 1;
+		s = s - node->lc->size;
 		INT ret;
-		if (k <= s1) ret = findKth(LC, k, pos);
-		else ret = findKth(RC, k - s1, pos);
-		node->sum = node->ch[0]->sum + node->ch[1]->sum;
+		if (k <= s) ret = findKth(LC, k, pos);
+		else ret = findKth(RC, k - s, pos);
+		node->size = node->lc->size + node->rc->size;
 		return ret;
 	}
+	INT g_Pos, g_Val;
 	void insert(PARAM)
 	{
 		alloc(node);
 		if (l == r)
 		{
-			node->sum = 0;
+			node->size = 0;
 			node->val = g_Val;
 			return;
 		}
 		DEF;
 		if (g_Pos <= mid) insert(LC);
 		else insert(RC);
-		node->sum = node->ch[0]->sum + node->ch[1]->sum;
+		node->size = node->lc->size + node->rc->size;
 	}
 
 public:
 	SegTree()
 	{
 		null = new Node;
-		root = null->ch[0] = null->ch[1] = null;
+		root = null->lc = null->rc = null;
 	}
 	INT kth(INT k, INT& pos)
 	{
-		return findKth(root, 1, n + q, k, pos);
+		return findKth(root, 1, std::max(n, m) + q, k, pos);
 	}
 	void insert(INT pos, INT val)
 	{
 		g_Pos = pos;
 		g_Val = val;
-		insert(root, 1, n + q);
+		insert(root, 1, std::max(n, m) + q);
 	}
 } trees[maxn], colum;
 
