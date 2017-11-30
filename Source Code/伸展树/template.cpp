@@ -77,33 +77,7 @@ class Splay
 		{
 			s = ch[0]->s + ch[1]->s + 1;
 		}
-		static void rotate(Node* &r, INT d)
-		{
-			Node* k = r->ch[d ^ 1];
-			r->ch[d ^ 1] = k->ch[d];
-			k->ch[d] = r;
-			r->maintain();
-			k->maintain();
-			r = k;
-		}
-		static void splay(Node* &r, INT k)
-		{
-			if (k <= 0 || k > r->s) return;
-			INT d = compRank;
-			if (d == -1)
-				return;
-			INT k1 = k - d * (r->ch[0]->s + 1);
-			INT d2 = r->ch[d]->compRank(k1);
-			INT k2 = k1 - d2 * (r->ch[d]->ch[0]->s + 1);
-			if (d2 != -1)
-			{
-				if (d == d2)
-					rotate(r, d ^ 1);
-				else
-					rotate(r->ch[d], d2 ^ 1);
-			}
-			rotate(r, d ^ 1);
-		}
+
 	};
 	Node* null;
 	Node* root;
@@ -134,6 +108,36 @@ private:
 		delete r;
 	}
 
+private:
+	static void rotate(Node* &r, INT d)
+	{
+		Node* k = r->ch[d ^ 1];
+		r->ch[d ^ 1] = k->ch[d];
+		k->ch[d] = r;
+		r->maintain();
+		k->maintain();
+		r = k;
+	}
+	static void splay(Node* &r, INT k)
+	{
+		if (k <= 0 || k > r->s) return;
+		INT d = r->compRank(k);
+		if (d == -1)
+			return;
+		INT k1 = k - d * (r->ch[0]->s + 1);
+		INT d2 = r->ch[d]->compRank(k1);
+		INT k2 = k1 - d2 * (r->ch[d]->ch[0]->s + 1);
+		if (d2 != -1)
+		{
+			if (d == d2)
+				rotate(r, d ^ 1);
+			else
+				rotate(r->ch[d], d2 ^ 1);
+		}
+		rotate(r, d ^ 1);
+	}
+
+
 public:
 	void build(T* begin, T* end)
 	{
@@ -161,6 +165,7 @@ public:
 	void print()
 	{
 		print(root);
+		cout << endl;
 	}
 private:
 	void print(Node* r)
@@ -170,14 +175,62 @@ private:
 		cout << r->v << " ";
 		print(r->ch[1]);
 	}
+
+public:
+	void insert(const T x)
+	{
+		splay(root, insert(root, x, 0));
+	}
+private:
+	INT insert(Node* &r, const T& x, INT k)
+	{
+		if (r == null)
+		{
+			r = new Node;
+			r->ch[0] = r->ch[1] = null;
+			r->v = x;
+			r->maintain();
+			return k + 1;
+		}
+		INT d = r->comp(x);
+		if (d == -1) return k + 1;
+		INT ret = insert(r->ch[d], x, k + d * (r->ch[0]->s + 1));
+		r->maintain();
+		return ret;
+	}
+
+public:
+	void erase(const T x)
+	{
+
+	}
+private:
+	void erase(Node* &r, const T& x)
+	{
+
+	}
+
+public:
+	INT size() const
+	{
+		return root->s;
+	}
 };
 
 void run()
 {
 	Splay<INT> splay;
-	INT a[] = { 1, 3, 5, 2, 6, 2, 1 };
+	INT a[] = { 1, 3, 5, 2, 6, 2, 1, 5, 3, 3, 86, 3 };
 	splay.build(a, a + (sizeof(a) / sizeof(INT)));
 	splay.print();
+	cout << splay.size() << endl;
+	splay.insert(1);
+	splay.print();
+	cout << splay.size() << endl;
+	splay.insert(-1);
+	splay.print();
+	cout << splay.size() << endl;
+
 }
 
 int main()
