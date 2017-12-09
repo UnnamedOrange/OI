@@ -54,56 +54,71 @@ inline void printOut(INT x)
 	} while (length);
 }
 
-struct BlockList
+class BlockList
 {
-	static const INT maxn = 2 * 1024 * 1024 + 5;
-	static const INT size = 1500; //std::sqrt(maxn)(1450)
-
+	static const INT size = 5000;
 	struct Block
 	{
 		INT s;
 		char v[size];
-		Block() : s(), v() {}
+		Block() : s() {}
 		Block(char* begin, char* end) : s(), v()
 		{
 			s = end - begin;
-			memcpy(v, begin, sizeof(char) * s);
+			std::copy(begin, end, v);
 		}
 	};
 	std::list<Block> blocks;
 	typedef std::list<Block>::iterator IT;
+	static IT Next(IT it) { IT ret = it; return ++ret; }
 
-	IT locate(INT k, INT& remain)
+	IT locate(INT& k)
 	{
 		IT it;
-		remain = k;
 		for (it = blocks.begin(); it != blocks.end(); it++)
 		{
-			if (remain <= it->s)
+			if (k <= it->s)
 				return it;
-			remain -= it->s;
+			k -= it->s;
 		}
 		return it;
 	}
+	void maintain()
+	{
+		IT it;
+		for (it = blocks.begin(); it != blocks.end(); it++)
+		{
+			IT next = Next(it);
+			while (next != blocks.end() && it->s + next->s <= size)
+			{
+				merge(it, next);
+				next = Next(it);
+			}
+		}
+	}
 	void merge(IT l, IT r)
 	{
-		memcpy(l->v + l->s, r->v, sizeof(char) * r->s);
+		std::copy(r->v, r->v + r->s, l->v + l->s);
 		l->s += r->s;
 		blocks.erase(r);
 	}
-	void split(IT it, INT k)
+	bool split(IT it, INT k)
 	{
-		if (k == it->s) return;
-		IT next = it;
-		next++;
-		blocks.insert(next, Block(it->v + k, it->v + it->s));
+		if (k >= it->s) return false;
+		blocks.insert(Next(it), Block(it->v + k, it->v + it->s));
 		it->s = k;
+		return true;
 	}
+
+public:
 	void insert(char* begin, char* end, INT k)
 	{
-		IT it = locate(k, k);
+		IT it = locate(k);
 		if (it != blocks.end())
+		{
 			split(it, k);
+			it++;
+		}
 		while (end - begin >= size)
 		{
 			blocks.insert(it, Block(begin, begin + size));
@@ -113,17 +128,11 @@ struct BlockList
 		{
 			blocks.insert(it, Block(begin, end));
 		}
-		if (it != blocks.end())
-		{
-			IT next = it;
-			next++;
-			if (next != blocks.end() && it->s + next->s <= size)
-				merge(it, next);
-		}
+		maintain();
 	}
 	void erase(INT k, INT s)
 	{
-		IT it = locate(k, k);
+		IT it = locate(k);
 		split(it, k);
 		it++;
 		IT next = it;
@@ -143,18 +152,16 @@ struct BlockList
 			}
 			it = next;
 		}
-		it = next;
-		it--;
-		if (next != blocks.end() && it->s + next->s <= size)
-			merge(it, next);
+		maintain();
 	}
-	void wander(INT k, INT s)
+	typedef void(*Func)(const char& v);
+	void wander(INT k, INT s, Func op)
 	{
-		IT it = locate(k, k);
+		IT it = locate(k);
+		k--;
 		while (s--)
 		{
-			putchar(it->v[k - 1]);
-			k++;
+			op(it->v[k++]);
 			if (k >= it->s)
 			{
 				it++;
@@ -202,7 +209,7 @@ void run()
 		case 'G':
 		{
 			INT length = readIn();
-			editor.wander(pos, length);
+			editor.wander(pos + 1, length, [](const char& ch) { putchar(ch); });
 			putchar('\n');
 			break;
 		}
