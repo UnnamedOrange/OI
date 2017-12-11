@@ -132,7 +132,7 @@ private:
 		adjust(r->ch[0], 0);
 		adjust(r->ch[1], 1);
 		adjust(r, 0);
-		adjust(r, 0);
+		adjust(r, 1);
 	}
 
 private:
@@ -149,7 +149,7 @@ private:
 		if (d == -1) return;
 		insert(r->ch[d], x);
 		r->maintain();
-		adjust(r, d ^ 1);
+		adjust(r, d);
 	}
 public:
 	void insert(const T x) { insert(root, x); }
@@ -170,18 +170,19 @@ public:
 	INT size() const { return root->s; }
 
 private:
-	void deleteNode(Node* &r, Node* parent)
+	void deleteNode(Node* &r)
 	{
-		if (r->ch[1] == null)
+		Node* parent = r;
+		Node* left = r->ch[0];
+		while (left->ch[1] != null)
 		{
-			parent->v = r->v;
-			Node* del = r;
-			r = r->ch[0];
-			delete del;
-			return;
+			left->s--;
+			parent = left;
+			left = left->ch[1];
 		}
-		deleteNode(r->ch[1], parent);
-		r->maintain();
+		parent->ch[parent != r] = left->ch[0];
+		r->v = left->v;
+		delete left;
 	}
 	void erase(Node* &r, const T& x)
 	{
@@ -200,16 +201,14 @@ private:
 			}
 			else
 			{
-				deleteNode(r->ch[0], r);
+				deleteNode(r);
 				r->maintain();
-				adjust(r, 1);
 			}
 			return;
 		}
 		else
 			erase(r->ch[d], x);
 		r->maintain();
-		adjust(r, d); //TODO
 	}
 public:
 	void erase(const T x) { erase(root, x); }
