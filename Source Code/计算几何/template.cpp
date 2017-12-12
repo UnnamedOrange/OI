@@ -144,7 +144,7 @@ namespace ComputationGeometry
 		Line(const Point& p, const Vector& v) : p(p), v(v) {}
 	};
 	//取两直线交点，当且仅当 a × b != 0 时两直线有交点
-	//作图，不难得出当右边的系数为正时，u 和 b.v 的手性应相同，就可以得出正确代码了
+	//作图，不难发现当代码右边那两个叉积之商应该为正时，u 和 b.v 的左右应相同，这样就能推导出 u = a.p - b.p 而不是其相反向量了（注意起点和终点谁是谁）
 	Point GetLinesIntersection(const Line& a, const Line& b)
 	{
 		Vector u = a.p - b.p;
@@ -155,7 +155,34 @@ namespace ComputationGeometry
 	{
 		return std::abs(Cross(a - b.p, b.v) / Length(b.v));
 	}
-
+}
+//点和线段
+namespace ComputationGeometry
+{
+	struct Segment
+	{
+		Point u, v;
+		Segment() {}
+		Segment(const Point& u, const Point& v) : u(u), v(v) {}
+		double Length() const
+		{
+			return ::Length(u - v);
+		}
+	};
+	//点到线段的距离
+	double DistanceFromPointToSegment(const Point& a, const Segment& b)
+	{
+		if (b.u == b.v) return Length(a - b.u);
+		Vector UA = a - b.u;
+		Vector VA = a - b.v;
+		Vector UV = b.v - b.u;
+		if (dcmp(Dot(UA, UV)) < 0)
+			return Length(UA);
+		else if (dcmp(Dot(VA, UV)) > 0) //VA * VU < 0
+			return Length(VA);
+		else
+			return std::abs(Cross(UA, UV) / b.Length());
+	}
 
 }
 using namespace ComputationGeometry;
