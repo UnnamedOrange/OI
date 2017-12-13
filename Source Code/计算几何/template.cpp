@@ -155,6 +155,11 @@ namespace ComputationGeometry
 	{
 		return std::abs(Cross(a - b.p, b.v) / Length(b.v));
 	}
+	//点在直线上的投影
+	Point GetLineProjection(const Point& a, const Line& b)
+	{
+		return b.p + b.v * (Dot(a - b.p, b.v) / Dot(b.v, b.v));
+	}
 }
 //点和线段
 namespace ComputationGeometry
@@ -166,7 +171,11 @@ namespace ComputationGeometry
 		Segment(const Point& u, const Point& v) : u(u), v(v) {}
 		double Length() const
 		{
-			return ::Length(u - v);
+			return ComputationGeometry::Length(u - v);
+		}
+		operator Vector() const
+		{
+			return v - u;
 		}
 	};
 	//点到线段的距离
@@ -183,7 +192,29 @@ namespace ComputationGeometry
 		else
 			return std::abs(Cross(UA, UV) / b.Length());
 	}
-
+	//判断线段是否规范相交
+	bool IsSegmentsProperIntersection(const Segment& a, const Segment& b)
+	{
+		if (dcmp(Cross(a, a.u - b.u)) * dcmp(Cross(a, a.u - b.v)) >= 0) return false;
+		if (dcmp(Cross(b, b.u - a.u)) * dcmp(Cross(b, b.u - a.v)) >= 0) return false;
+		return true;
+	}
+	//判断点是否在线段上
+	bool IsOnSegment(const Point& a, const Segment& b)
+	{
+		return dcmp(Cross(a - b.u, a - b.v)) == 0 && dcmp(Dot(a - b.u, a - b.v)) <= 0;
+	}
+	//判断线段是否相交
+	bool IsSegmentsIntersection(const Segment& a, const Segment& b)
+	{
+		double c1 = Cross(a, a.u - b.u);
+		double c2 = Cross(a, a.u - b.v);
+		if (!dcmp(c1) && !dcmp(c2))
+			return IsOnSegment(a.u, b) || IsOnSegment(a.v, b) || IsOnSegment(b.u, a) || IsOnSegment(b.v, a);
+		double c3 = Cross(b, b.u - a.u);
+		double c4 = Cross(b, b.u - a.v);
+		return dcmp(c1) * dcmp(c2) <= 0 && dcmp(c3) * dcmp(c4) <= 0;
+	}
 }
 using namespace ComputationGeometry;
 
