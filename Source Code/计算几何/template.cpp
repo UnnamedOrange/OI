@@ -112,6 +112,12 @@ namespace ComputationGeometry
 	{
 		return std::acos(Dot(a, b) / Length(a) / Length(b));
 	}
+	//求单位向量
+	Vector Unit(const Vector& a)
+	{
+		double length = Length(a);
+		return Vector(a.x / length, a.y / length);
+	}
 
 	//使用三角函数推导向量旋转
 	//x0 = L * cos(A)
@@ -142,6 +148,10 @@ namespace ComputationGeometry
 		Vector v;
 		Line() {}
 		Line(const Point& p, const Vector& v) : p(p), v(v) {}
+		Point point(const double& t) const
+		{
+			return p + v * t;
+		}
 	};
 	//取两直线交点，当且仅当 a × b != 0 时两直线有交点
 	//作图，不难发现当代码右边那两个叉积之商应该为正时，u 和 b.v 的左右应相同，这样就能推导出 u = a.p - b.p 而不是其相反向量了（注意起点和终点谁是谁）
@@ -214,6 +224,110 @@ namespace ComputationGeometry
 		double c3 = Cross(b, b.u - a.u);
 		double c4 = Cross(b, b.u - a.v);
 		return dcmp(c1) * dcmp(c2) <= 0 && dcmp(c3) * dcmp(c4) <= 0;
+	}
+}
+//圆
+namespace ComputationGeometry
+{
+	//应该在草稿纸上推导出计算方法后再照着推导结果打出代码
+	struct Circle
+	{
+		Point c;
+		double r;
+		Circle() {}
+		Circle(const Point& c, const double& r) : c(c), r(r) {}
+		Point point(const double& rad) const
+		{
+			return Point(c.x + std::cos(rad) * r, c.y + std::sin(rad) * r);
+		}
+	};
+	//直线和圆的交点（解方程组法）
+	INT GetLineCircleIntersection(const Circle& a, const Line& b, double& t1, double& t2, Point& p1, Point& p2)
+	{
+		double m = b.v.x;
+		double n = b.v.y;
+		double p = b.p.x - a.c.x;
+		double q = b.p.y - a.c.y;
+		double r = a.r;
+		double A = (m * m + n * n);
+		double B = 2 * (m * p + n * q);
+		double C = p * p + q * q - r * r;
+		double delta = B * B - 4 * A * C;
+		if (dcmp(delta) < 0)
+			return 0;
+		else if (dcmp(delta) == 0)
+		{
+			p1 = p2 = b.point(t1 = t2 = -B / (2 * A));
+			return 1;
+		}
+		//else
+		delta = std::sqrt(delta);
+		p1 = b.point(t1 = (-B - delta) / (2 * A));
+		p2 = b.point(t2 = (-B + delta) / (2 * A));
+		return 2;
+	}
+	//直线和圆的交点（几何法）
+	INT GetLineCircleIntersection(const Circle& a, const Line& b, Point& p1, Point& p2)
+	{
+		Point p = GetLineProjection(a.c, b);
+		double d = Length(p - a.c);
+		if (dcmp(d - a.r) > 0)
+			return 0;
+		else if (dcmp(d - a.r) == 0)
+		{
+			p1 = p2 = p;
+			return 1;
+		}
+		//else
+		Vector v = Unit(b.v);
+		double L = std::sqrt(a.r * a.r - d * d);
+		p1 = p - v * L;
+		p2 = p + v * L;
+		return 2;
+	}
+	//求向量极角
+	double Angle(const Vector& v)
+	{
+		return std::atan2(v.y, v.x);
+	}
+	//圆与圆的交点（余弦定理）
+	INT GetCirclesIntersection(const Circle& a, const Circle& b, Point& p1, Point& p2)
+	{
+		double d = Length(a.c - b.c);
+		if (dcmp(d) == 0)
+		{
+			if (dcmp(a.r - b.r) == 0)
+				return -1; //两圆相交
+			else
+				return 0;
+		}
+		if (dcmp(a.r + b.r - d) < 0)
+			return 0; //外离
+		if (dcmp(std::abs(a.r - b.r) - d) > 0)
+			return 0; //内含
+
+		double AngleA = Angle(b.c - a.c); //注意以 a 为中心，则向量起点为 a.c
+		double AngleDR = std::acos((a.r * a.r + d * d - b.r * b.r) / (2 * a.r * d)); //余弦定理
+		p1 = a.point(AngleA - AngleDR);
+		p2 = a.point(AngleA + AngleDR);
+		return 1 + !(p1 == p2);
+	}
+	//圆的切线
+	INT GetTangents(const Circle& a, const Point& b, Vector& v1, Vector& v2)
+	{
+		Vector u = a.c - b; //起点为 p
+		double d = Length(u);
+		if (dcmp(d - a.r) == 0)
+		{
+			v1 = v2 = Rotate(u, std::acos(-1) / 2); //旋转 90 度
+			return 1;
+		}
+		else if (dcmp(d - a.r) < 0)
+			return 0;
+		double Angle = asin(a.r / d);
+		v1 = Rotate(u, -Angle);
+		v2 = Rotate(u, Angle);
+		return 2;
 	}
 }
 using namespace ComputationGeometry;
