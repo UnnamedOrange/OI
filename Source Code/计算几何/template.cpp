@@ -329,6 +329,46 @@ namespace ComputationGeometry
 		v2 = Rotate(u, Angle);
 		return 2;
 	}
+	//圆的公切线（求切点）
+	INT GetCommonTangents(const Circle& a, const Circle& b, Point* pa, Point* pb)
+	{
+		if (dcmp(a.r - b.r) < 0)
+			return GetCommonTangents(b, a, pb, pa);
+		const double PI = std::acos(-1);
+		Vector link = b.c - a.c;
+		double d2 = Dot(link, link);
+		double rDiff = a.r - b.r;
+		double rSum = a.r + b.r;
+		double base = std::atan2(link.y, link.x); //极角
+
+		if (dcmp(d2) == 0 && dcmp(a.r - b.r) == 0)
+			return -1; //两圆完全重合（情况 1）
+		else if (dcmp(d2 - rDiff * rDiff) < 0)
+			return 0; //内含（情况 2）
+		else if (dcmp(d2 - rDiff * rDiff < 0))
+		{
+			*(pa++) = a.point(base);
+			*(pb++) = b.point(base);
+			return 1; //内切（情况 3）
+		}
+
+		INT ret = 0;
+		//剩下的都有两条外公切线
+		double ang = std::acos(rDiff / std::sqrt(d2)); //转角
+		*(pa++) = a.point(base + ang); *(pb++) = b.point(base + ang); ret++;
+		*(pa++) = a.point(base - ang); *(pb++) = b.point(base - ang); ret++; //外公切线对应向量平行
+		if (dcmp(d2 - rSum * rSum) == 0) //一条内公切线（情况 5）
+		{
+			*(pa++) = a.point(base); *(pb++) = b.point(PI + base); ret++; // b 圆为相反方向（加 PI）
+		}
+		else if (dcmp(d2 - rSum * rSum) > 0) //两条外公切线（情况 6）
+		{
+			ang = std::acos(rSum / std::sqrt(d2));
+			*(pa++) = a.point(base + ang); *(pb++) = b.point(PI + base + ang); ret++;
+			*(pa++) = a.point(base - ang); *(pb++) = b.point(PI + base - ang); ret++; //内公切线相对于极角对称（加 PI）
+		}
+		return ret;
+	}
 }
 using namespace ComputationGeometry;
 
