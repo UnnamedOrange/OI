@@ -83,9 +83,8 @@ class SegTree
 	struct Node
 	{
 		INT sum;
-		INT lazy;
 		Node* ch[2];
-		Node() : sum(), lazy(), ch() {}
+		Node() : sum(), ch() {}
 		void update()
 		{
 			sum = ch[0]->sum + ch[1]->sum;
@@ -126,51 +125,33 @@ private:
 #define RC node->ch[1], mid + 1, r
 #define CNT node, l, r
 
-	static void cover(PARAM, INT val)
-	{
-		alloc(node);
-		node->sum += val * (r - l + 1);
-		node->lazy += val;
-	}
-	static void pushdown(PARAM)
-	{
-		if (node->lazy)
-		{
-			DEF;
-			cover(LC, node->lazy);
-			cover(RC, node->lazy);
-			node->lazy = 0;
-		}
-	}
 	INT query(PARAM)
 	{
 		alloc(node);
-		if (l == r)
+		if (g_L <= l && r <= g_R)
 		{
 			return node->sum;
 		}
 		DEF;
-		pushdown(CNT);
 		INT ret = 0;
-		if (g_Pos <= mid) ret += query(LC);
-		else if (g_Pos > mid) ret += query(RC);
+		if (g_L <= mid) ret += query(LC);
+		if (g_R > mid) ret += query(RC);
 		return ret;
 	}
 	void add(PARAM)
 	{
 		alloc(node);
-		if (g_L <= l && r <= g_R)
+		if (l == r)
 		{
-			cover(CNT, g_Val);
+			node->sum += g_Val;
 			return;
 		}
 		DEF;
-		pushdown(CNT);
-		if (g_L <= mid) add(LC);
-		if (g_R > mid) add(RC);
+		if (g_Pos <= mid) add(LC);
+		else if (g_Pos > mid) add(RC);
 		node->update();
 	}
-	static void change(Node* &r1, Node* &r2, INT l, INT r)
+	static void exchange(Node* &r1, Node* &r2, INT l, INT r)
 	{
 		if (g_L <= l && r <= g_R)
 		{
@@ -179,35 +160,33 @@ private:
 		}
 		alloc(r1);
 		alloc(r2);
-		pushdown(r1, l, r);
-		pushdown(r2, l, r);
 		DEF;
-		if (g_L <= mid) change(r1->ch[0], r2->ch[0], l, mid);
-		if (g_R > mid) change(r1->ch[1], r2->ch[1], mid + 1, r);
+		if (g_L <= mid) exchange(r1->ch[0], r2->ch[0], l, mid);
+		if (g_R > mid) exchange(r1->ch[1], r2->ch[1], mid + 1, r);
 		r1->update();
 		r2->update();
 	}
 
 public:
 	SegTree() : root() {}
-	INT query(INT pos)
+	INT query(INT l, INT r)
 	{
-		if (!pos) return 0;
+		if (l > r) return 0;
+		g_L = l;
+		g_R = r;
+		return query(root, 1, 2 * n);
+	}
+	void add(INT pos, INT val)
+	{
 		g_Pos = pos;
-		return query(root, 1, n);
-	}
-	void add(INT l, INT r, INT val)
-	{
-		g_L = l;
-		g_R = r;
 		g_Val = val;
-		add(root, 1, n);
+		add(root, 1, 2 * n);
 	}
-	static void change(SegTree& a, SegTree& b, INT l, INT r)
+	static void exchange(SegTree& a, SegTree& b, INT l, INT r)
 	{
 		g_L = l;
 		g_R = r;
-		change(a.root, b.root, 1, n);
+		exchange(a.root, b.root, 1, 2 * n);
 	}
 };
 SegTree::Node* SegTree::null = SegTree::Init::InitNull();
@@ -216,19 +195,16 @@ INT SegTree::g_L, SegTree::g_R, SegTree::g_Pos, SegTree::g_Val;
 INT color[maxn];
 INT weight[maxn];
 SegTree st[10];
-SegTree cst[10];
 
 INT size;
 INT parent[17][maxn];
 INT depth[maxn];
-INT seq[maxn];
-INT dfn[maxn];
-INT end[maxn];
+INT euler[maxn * 2];
+INT end[maxn * 2];
 void DFS(INT node)
 {
 	static INT clock = 0;
-	dfn[node] = ++clock;
-	seq[clock] = node;
+	euler[node] = ++clock;
 
 	depth[node] = depth[parent[0][node]] + 1;
 	wander(G, node)
@@ -240,7 +216,7 @@ void DFS(INT node)
 		parent[0][to] = node;
 		DFS(to);
 	}
-	end[node] = clock;
+	end[node] = ++clock;
 }
 void goDouble()
 {
@@ -291,8 +267,8 @@ void run()
 	goDouble();
 	for (int i = 1; i <= n; i++)
 	{
-		st[color[i]].add(dfn[i], end[i], weight[i]);
-		cst[color[i]].add(dfn[i], dfn[i], 1);
+		st[color[i]].add(euler[i], weight[i]);
+		st[color[i]].add(end[i], -weight[i]);
 	}
 
 	INT m = readIn();
@@ -305,8 +281,7 @@ void run()
 			INT u = readIn() + 1;
 			INT x = readIn();
 			INT y = readIn();
-			SegTree::change(st[x], st[y], dfn[u], end[u]);
-			SegTree::change(cst[x], cst[y], dfn[u], end[u]);
+			SegTree::exchange(st[x], st[y], euler[u], end[u]);
 		}
 		else if (ins[0] == 'A')
 		{
@@ -314,7 +289,7 @@ void run()
 			INT v = readIn() + 1;
 			INT c = readIn();
 			INT lca = LCA(u, v);
-			printOut(st[c].query(dfn[u]) + st[c].query(dfn[v]) - st[c].query(dfn[lca]) - st[c].query(dfn[parent[0][lca]]));
+			printOut(st[c].query(1, euler[u]) + st[c].query(1, euler[v]) - st[c].query(1, euler[lca]) - st[c].query(1, euler[parent[0][lca]]));
 		}
 		else if (ins[0] == 'S')
 		{
@@ -325,18 +300,17 @@ void run()
 			INT o = 0;
 			for (int i = 0; i < 10; i++)
 			{
-				if (cst[i].query(dfn[u]))
+				if (st[i].query(euler[u], euler[u]))
 				{
 					o = i;
-					cst[i].add(dfn[u], dfn[u], -1);
+					st[i].add(euler[u], -weight[u]);
+					st[i].add(end[u], weight[u]);
 					break;
 				}
 			}
-			cst[c].add(dfn[u], dfn[u], 1);
 
-			st[o].add(dfn[u], end[u], -weight[u]);
-			st[c].add(dfn[u], end[u], v);
-			color[u] = c;
+			st[c].add(euler[u], v);
+			st[c].add(end[u], -v);
 			weight[u] = v;
 		}
 	}
