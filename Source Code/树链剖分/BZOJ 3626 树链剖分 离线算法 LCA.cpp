@@ -103,8 +103,8 @@ class SegTree
 		if (val)
 		{
 			DEF;
-			nodes[node].sum += val * (r - l + 1);
-			nodes[node].lazy += val;
+			nodes[node].sum = (nodes[node].sum + val * (r - l + 1)) % mod;
+			nodes[node].lazy = (nodes[node].lazy + val) % mod;
 		}
 	}
 	void pushdown(PARAM)
@@ -121,7 +121,7 @@ class SegTree
 	void update(PARAM)
 	{
 		DEF;
-		nodes[node].sum = nodes[lc].sum + nodes[rc].sum;
+		nodes[node].sum = (nodes[lc].sum + nodes[rc].sum) % mod;
 	}
 	INT handle_(PARAM)
 	{
@@ -133,8 +133,8 @@ class SegTree
 		}
 		pushdown(CNT);
 		INT ret = 0;
-		if (g_L <= mid) ret += handle_(LC);
-		if (g_R > mid) ret += handle_(RC);
+		if (g_L <= mid) ret = (ret + handle_(LC)) % mod;
+		if (g_R > mid) ret = (ret + handle_(RC)) % mod;
 		update(CNT);
 		return ret;
 	}
@@ -201,12 +201,12 @@ namespace DOC
 		{
 			if (depth[top[u]] < depth[top[v]])
 				std::swap(u, v);
-			ret += st.handle(dfn[top[u]], dfn[u], val);
+			ret = (ret + st.handle(dfn[top[u]], dfn[u], val)) % mod;
 			u = parent[top[u]];
 		}
 		if (dfn[u] > dfn[v])
 			std::swap(u, v);
-		ret += st.handle(dfn[u], dfn[v], val);
+		ret = (ret + st.handle(dfn[u], dfn[v], val)) % mod;
 		return ret;
 	}
 }
@@ -225,14 +225,14 @@ struct Query
 	}
 	void handle(INT x)
 	{
-		if (!negative)
+		if (!~negative)
 			negative = x;
 		else
 			positive = x;
 	}
 	void print()
 	{
-		printOut(positive - negative);
+		printOut(((positive - negative) % mod + mod) % mod);
 	}
 } query[maxn];
 std::vector<INT> offline[maxn];
