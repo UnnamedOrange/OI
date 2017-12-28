@@ -13,7 +13,7 @@
 #include <set>
 #include <bitset>
 #include <list>
-typedef int INT;
+typedef long long INT;
 using std::cin;
 using std::cout;
 using std::endl;
@@ -52,6 +52,7 @@ void printOut(INT x)
 	{
 		putchar(buffer[--length]);
 	} while (length);
+	putchar('\n');
 }
 
 const INT maxn = 30005;
@@ -77,6 +78,28 @@ struct Graph
 #define wander(G, node) for(int i = G.head[node]; i; i = G.edges[i].next)
 #define DEF(G) const Graph::Edge& e = G.edges[i]; INT to = e.to; INT cost = e.cost
 } G;
+
+INT q;
+struct Query
+{
+	INT u;
+	INT v;
+	INT ans;
+	Query() : u(), v(), ans() {}
+	void read()
+	{
+		u = readIn();
+		v = readIn();
+	}
+	operator INT&()
+	{
+		return ans;
+	}
+	void print()
+	{
+		printOut(ans);
+	}
+} querys[maxn];
 
 INT n;
 INT a[maxn];
@@ -148,6 +171,11 @@ namespace DOC
 }
 using namespace DOC;
 
+INT vertex[maxn];
+INT sum[2][maxn];
+INT exclude[2][maxi][maxn];
+INT num[2][maxn];
+INT excludeNum[2][maxi][maxn];
 void run()
 {
 	n = readIn();
@@ -164,11 +192,78 @@ void run()
 
 	solve(1);
 
-	INT t = readIn();
-	while (t--)
-	{
+	q = readIn();
+	for (int i = 1; i <= q; i++)
+		querys[i].read();
 
+	for (int i = 0; i < 14; i++)
+	{
+		memcpy(vertex, a, sizeof(vertex));
+		memset(sum, 0, sizeof(sum));
+		memset(exclude, 0, sizeof(exclude));
+		memset(num, 0, sizeof(num));
+		memset(excludeNum, 0, sizeof(excludeNum));
+		for (int j = 1; j <= n; j++)
+		{
+			bool bSel = vertex[j] & (1 << i);
+			for (int k = 1; k < maxi && center[k][j]; k++)
+			{
+				INT cen = center[k][j];
+				INT bel = belong[k][j];
+				sum[bSel][cen] += dis[k][j];
+				num[bSel][cen]++;
+				if (bel)
+				{
+					exclude[bSel][k][bel] += dis[k][j];
+					excludeNum[bSel][k][bel]++;
+				}
+			}
+		}
+		INT Ans = 0;
+		for (int j = 1; j <= n; j++)
+			Ans += sum[0][j] * num[1][j] + sum[1][j] * num[0][j];
+
+		for (int j = 1; j <= n; j++)
+			for (int k = 1; k < maxi; k++)
+				Ans -= exclude[0][k][j] * excludeNum[1][k][j] + exclude[1][k][j] * excludeNum[0][k][j];
+
+		for (int j = 1; j <= q; j++)
+		{
+			INT u = querys[j].u;
+			bool bSelPre = vertex[u] & (1 << i);
+			bool bSelCnt = querys[j].v & (1 << i);
+			if (bSelPre != bSelCnt)
+			{
+				for (int k = 1; k < maxi && center[k][u]; k++)
+				{
+					INT cen = center[k][u];
+					INT bel = belong[k][u];
+					INT d = dis[k][u];
+					Ans -= sum[0][cen] * num[1][cen] + sum[1][cen] * num[0][cen];
+					sum[bSelPre][cen] -= d;
+					sum[bSelCnt][cen] += d;
+					num[bSelPre][cen]--;
+					num[bSelCnt][cen]++;
+					Ans += sum[0][cen] * num[1][cen] + sum[1][cen] * num[0][cen];
+					if (bel)
+					{
+						Ans += exclude[0][k][bel] * excludeNum[1][k][bel] + exclude[1][k][bel] * excludeNum[0][k][bel];
+						exclude[bSelPre][k][bel] -= d;
+						exclude[bSelCnt][k][bel] += d;
+						excludeNum[bSelPre][k][bel]--;
+						excludeNum[bSelCnt][k][bel]++;
+						Ans -= exclude[0][k][bel] * excludeNum[1][k][bel] + exclude[1][k][bel] * excludeNum[0][k][bel];
+					}
+				}
+			}
+
+			querys[j] += Ans * (1 << i);
+			vertex[u] = querys[j].v;
+		}
 	}
+
+	for (int i = 1; i <= q; i++)
+		querys[i].print();
 }
 
 int main()
