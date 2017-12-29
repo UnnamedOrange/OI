@@ -52,11 +52,88 @@ void printOut(INT x)
 	{
 		putchar(buffer[--length]);
 	} while (length);
+	putchar('\n');
+}
+
+const INT maxn = 200005;
+const INT maxi = 455;
+INT n, m;
+INT sqrtN;
+INT N;
+INT a[maxn];
+INT step[maxn];
+INT next[maxn];
+
+inline INT inB(INT x)
+{
+	if (x > n)
+		return N;
+	return (x - 1) / sqrtN;
 }
 
 void run()
 {
+	n = readIn();
+	sqrtN = std::sqrt(n);
+	N = (n + sqrtN - 1) / sqrtN;
 
+	for (int i = 1; i <= n; i++)
+		a[i] = readIn();
+
+	for (int i = n; i >= 1; i--)
+	{
+		INT inBlock = inB(i);
+		INT t;
+		if (inB(t = i + a[i]) == inBlock)
+		{
+			step[i] = step[t] + 1;
+			next[i] = next[t];
+		}
+		else
+		{
+			step[i] = 1;
+			next[i] = t > n ? 0 : t;
+		}
+	}
+
+	m = readIn();
+	while (m--)
+	{
+		INT ins = readIn();
+		if (ins == 1)
+		{
+			INT x = readIn() + 1;
+			INT ans = 0;
+			while (x)
+			{
+				ans += step[x];
+				x = next[x];
+			}
+			printOut(ans);
+		}
+		else if (ins == 2)
+		{
+			INT x = readIn() + 1;
+			a[x] = readIn();
+
+			INT inBlock = inB(x);
+			INT begin = inBlock * sqrtN + 1;
+			for (int i = x; i >= begin; i--)
+			{
+				INT t;
+				if (inB(t = i + a[i]) == inBlock)
+				{
+					step[i] = step[t] + 1;
+					next[i] = next[t];
+				}
+				else
+				{
+					step[i] = 1;
+					next[i] = t > n ? 0 : t;
+				}
+			}
+		}
+	}
 }
 
 int main()
