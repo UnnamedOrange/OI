@@ -205,9 +205,8 @@ namespace ComputationGeometry
 	//判断线段是否规范相交
 	bool IsSegmentsProperIntersection(const Segment& a, const Segment& b)
 	{
-		if (dcmp(Cross(a, a.u - b.u)) * dcmp(Cross(a, a.u - b.v)) >= 0) return false;
-		if (dcmp(Cross(b, b.u - a.u)) * dcmp(Cross(b, b.u - a.v)) >= 0) return false;
-		return true;
+		return dcmp(Cross(a, a.u - b.u)) * dcmp(Cross(a, a.u - b.v)) < 0 &&
+			dcmp(Cross(b, b.u - a.u)) * dcmp(Cross(b, b.u - a.v)) < 0;
 	}
 	//判断点是否在线段上
 	bool IsOnSegment(const Point& a, const Segment& b)
