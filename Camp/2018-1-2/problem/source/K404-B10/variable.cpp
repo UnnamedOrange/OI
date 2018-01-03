@@ -13,7 +13,7 @@
 #include <set>
 #include <bitset>
 #include <list>
-typedef int INT;
+typedef long long INT;
 using std::cin;
 using std::cout;
 using std::endl;

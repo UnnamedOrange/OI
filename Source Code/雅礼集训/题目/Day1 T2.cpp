@@ -131,7 +131,6 @@ void DFS2(INT node)
 	}
 }
 
-
 void run()
 {
 	INT T = readIn();
