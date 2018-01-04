@@ -22,19 +22,19 @@ INT readIn()
 	INT a = 0;
 	bool minus = false;
 	char ch = getchar();
-	while(!(ch == '-' || (ch >= '0' && ch <= '9')))
+	while (!(ch == '-' || (ch >= '0' && ch <= '9')))
 		ch = getchar();
-	if(ch == '-')
+	if (ch == '-')
 	{
 		minus = true;
 		ch = getchar();
 	}
-	while(ch >= '0' && ch <= '9')
+	while (ch >= '0' && ch <= '9')
 	{
 		a = a * 10 + (ch - '0');
 		ch = getchar();
 	}
-	if(minus)
+	if (minus)
 		a = -a;
 	return a;
 }
@@ -42,7 +42,7 @@ void printOut(INT x)
 {
 	char buffer[20];
 	INT length = 0;
-	if(x < 0)
+	if (x < 0)
 	{
 		putchar('-');
 		x = -x;
@@ -51,13 +51,11 @@ void printOut(INT x)
 	{
 		buffer[length++] = x % 10 + '0';
 		x /= 10;
-	}
-	while(x);
+	} while (x);
 	do
 	{
 		putchar(buffer[--length]);
-	}
-	while(length);
+	} while (length);
 	putchar('\n');
 }
 
@@ -88,9 +86,9 @@ struct P
 		INT wy = (set & (1 << (y - 1))) ? W : -W;
 		INT wz = (set & (1 << (z - 1))) ? W : -W;
 		return a * std::abs(wx - wy) +
-		       b * std::abs(wy - wz) +
-		       c * std::abs(wz - wx) +
-		       d * (wx - wy) + e * (wy - wz) + f * (wz - wx);
+			b * std::abs(wy - wz) +
+			c * std::abs(wz - wx) +
+			d * (wx - wy) + e * (wy - wz) + f * (wz - wx);
 	}
 } ps[maxp];
 struct Q
@@ -106,11 +104,11 @@ struct Q
 	{
 		INT wx = (set & (1 << (x - 1))) ? W : -W;
 		INT wy = (set & (1 << (y - 1))) ? W : -W;
-		if(r == 0)
+		if (r == 0)
 			return wx <= wy;
-		else if(r == 1)
+		else if (r == 1)
 			return wx == wy;
-		else if(r == 2)
+		else if (r == 2)
 			return wx < wy;
 	}
 } qs[maxp];
@@ -121,7 +119,7 @@ struct brute
 	static INT sigmaW(INT set)
 	{
 		INT ret = 0;
-		for(int i = 0; i < n; i++)
+		for (int i = 0; i < n; i++)
 			ret += ((set & (1 << i)) ? W : -W);
 		return ret;
 	}
@@ -129,20 +127,20 @@ struct brute
 	{
 		INT ans = INF;
 		INT U = 1 << n;
-		for(int S = 0; S < U; S++)
+		for (int S = 0; S < U; S++)
 		{
 			bool bOk = true;
-			for(int i = 1; i <= q; i++)
+			for (int i = 1; i <= q; i++)
 			{
-				if(!qs[i].check(S))
+				if (!qs[i].check(S))
 				{
 					bOk = false;
 					break;
 				}
 			}
-			if(!bOk) continue;
+			if (!bOk) continue;
 			INT sum = sigmaW(S);
-			for(int i = 1; i <= p; i++)
+			for (int i = 1; i <= p; i++)
 				sum += ps[i].calc(S);
 			ans = std::min(ans, sum);
 		}
@@ -160,18 +158,18 @@ struct work
 void run()
 {
 	INT T = readIn();
-	while(T--)
+	while (T--)
 	{
 		n = readIn();
 		W = readIn();
 		p = readIn();
 		q = readIn();
-		for(int i = 1; i <= p; i++)
+		for (int i = 1; i <= p; i++)
 			ps[i].read();
-		for(int i = 1; i <= q; i++)
+		for (int i = 1; i <= q; i++)
 			qs[i].read();
 
-		if(n <= 15)
+		if (n <= 15)
 			RunInstance(brute);
 		else
 			RunInstance(work);
