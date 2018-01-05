@@ -12,16 +12,17 @@
 #include <map>
 #include <set>
 #include <bitset>
+#include <list>
+typedef int INT;
 using std::cin;
 using std::cout;
 using std::endl;
-typedef int INT;
-inline INT readIn()
+INT readIn()
 {
 	INT a = 0;
 	bool minus = false;
 	char ch = getchar();
-	while (!(ch == '-' || ch >= '0' && ch <= '9')) ch = getchar();
+	while (!(ch == '-' || (ch >= '0' && ch <= '9'))) ch = getchar();
 	if (ch == '-')
 	{
 		minus = true;
@@ -29,57 +30,84 @@ inline INT readIn()
 	}
 	while (ch >= '0' && ch <= '9')
 	{
-		a *= 10;
-		a += ch;
-		a -= '0';
+		a = a * 10 + (ch - '0');
 		ch = getchar();
 	}
 	if (minus) a = -a;
 	return a;
 }
-
-const INT maxn = 1000005;
-const INT maxm = 1005;
-char s1[maxn], s2[maxm];
-INT l1, l2;
-INT f[maxm];
-
-void KMP()
+void printOut(INT x)
 {
-	INT matched = 0;
-	for (int i = 0; i < l1; i++)
+	char buffer[20];
+	INT length = 0;
+	bool minus = x < 0;
+	if (minus) x = -x;
+	do
 	{
-		while (matched && s1[i] != s2[matched]) matched = f[matched];
-		if (s1[i] == s2[matched]) matched++;
-		if (matched == l2)
-		{
-			printf("%d\n", i - l2 + 1 + 1);
-		}
-	}
+		buffer[length++] = x % 10 + '0';
+		x /= 10;
+	} while (x);
+	if (minus) buffer[length++] = '-';
+	do
+	{
+		putchar(buffer[--length]);
+	} while (length);
 }
 
-void initFailure()
+const INT maxn = INT(1e6) + 5;
+INT n, m;
+char str[maxn], t[maxn];
+
+INT fMP[maxn];
+void initFailureMP()
 {
-	f[0] = f[1] = 0;
-	for (int i = 1; i < l2; i++)
+	fMP[0] = -1;
+	for (int i = 0; i < m; i++)
 	{
-		INT pre = f[i];
-		while (pre && s2[i] != s2[pre]) pre = f[pre]; //s[i]代表的是第i + 1个字符
-		f[i + 1] = s2[i] == s2[pre] ? pre + 1 : 0;
+		INT pre = fMP[i]; //这个 pre 事实上可以通过维护得到
+		while (~pre && t[i] != t[pre]) pre = fMP[pre];
+		pre++; //从 -1 开始避免了判断
+		fMP[i + 1] = pre;
+	}
+}
+INT fKMP[maxn];
+void initFailureKMP()
+{
+	INT pre = fKMP[0] = -1;
+	for (int i = 0; i < m; i++)
+	{
+		while (~pre && t[i] != t[pre]) pre = fKMP[pre];
+		pre++;
+		if (t[i + 1] == t[pre]) fKMP[i + 1] = fKMP[pre];
+		else fKMP[i + 1] = pre;
 	}
 }
 
 void run()
 {
-	scanf("%s%s", s1, s2);
-	l1 = strlen(s1);
-	l2 = strlen(s2);
-	initFailure();
-	KMP();
-	for (int i = 1; i <= l2; i++)
+	scanf("%s", str);
+	scanf("%s", t);
+	n = strlen(str);
+	m = strlen(t);
+	initFailureKMP();
+	initFailureMP();
+	INT cnt = 0;
+	for (int i = 0; i < n; i++)
 	{
-		printf("%d ", f[i]);
+		while (~cnt && str[i] != t[cnt]) cnt = fKMP[cnt];
+		cnt++;
+		if (cnt == m)
+		{
+			printOut(i - m + 2);
+			putchar('\n');
+		}
 	}
+	for (int i = 1; i <= m; i++)
+	{
+		printOut(fMP[i]);
+		putchar(' ');
+	}
+	putchar('\n');
 }
 
 int main()
