@@ -73,10 +73,11 @@ class ACAutomation
 	{
 		Node* c[alphabet];
 		Node* fail;
-		INT count;
+		Node* suffix;
 
+		INT count;
 		INT dfn;
-		Node() : c(), fail(), count(), dfn(-1) {}
+		Node() : c(), fail(), suffix(), count(), dfn(-1) {}
 	};
 	Node* root;
 
@@ -120,6 +121,7 @@ public:
 					while (pre && !pre->c[i])
 						pre = pre->fail;
 					p2->fail = pre ? pre->c[i] : root;
+					p2->suffix = p2->fail->count ? p2->fail : p2->suffix;
 				}
 			}
 		}
@@ -134,7 +136,7 @@ public:
 			INT ch = code(*S);
 			while (cnt && !cnt->c[ch]) cnt = cnt->fail;
 			cnt = cnt ? cnt->c[ch] : root;
-			for (Node* t = cnt; t; t = t->fail)
+			for (Node* t = cnt->count ? cnt : cnt->suffix; t; t = t->suffix)
 			{
 				if (t->dfn != clock_)
 				{
