@@ -1,0 +1,8 @@
+T1 : spoj DIVCNT2
+T2 :
+设 f(n,m) 表示有 n 个奇链 m 个偶链时的答案（奇链：由奇数个点形成的链）
+则 f(0,0)=1
+当 n=0 时，f(0,m)=(m-1)*f(1,m-1)
+当 n!=0 时，f(n,m)=(n+m)*f(n-1,m)
+T3 : Andrew Stankevich Contest 35 H
+见《数论与积性函数--任之洲》
