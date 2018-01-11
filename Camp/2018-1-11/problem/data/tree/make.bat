@@ -1,0 +1,21 @@
+input.exe
+output.exe < tree1.in > tree1.ans
+output.exe < tree2.in > tree2.ans
+output.exe < tree3.in > tree3.ans
+output.exe < tree4.in > tree4.ans
+output.exe < tree5.in > tree5.ans
+output.exe < tree6.in > tree6.ans
+output.exe < tree7.in > tree7.ans
+output.exe < tree8.in > tree8.ans
+output.exe < tree9.in > tree9.ans
+output.exe < tree10.in > tree10.ans
+output.exe < tree11.in > tree11.ans
+output.exe < tree12.in > tree12.ans
+output.exe < tree13.in > tree13.ans
+output.exe < tree14.in > tree14.ans
+output.exe < tree15.in > tree15.ans
+output.exe < tree16.in > tree16.ans
+output.exe < tree17.in > tree17.ans
+output.exe < tree18.in > tree18.ans
+output.exe < tree19.in > tree19.ans
+output.exe < tree20.in > tree20.ans

@@ -1,0 +1,114 @@
+\documentclass[a4paper]{article}
+\usepackage{ctex}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{colortbl}
+\usepackage{fancyvrb}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage[affil-it]{authblk}
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry}
+\usepackage{amsthm}
+
+\newcommand\spc{\vspace{6pt}}
+\newcommand{\floor}[1]{\lfloor {#1} \rfloor}
+\newcommand{\ceil}[1]{\lceil {#1} \rceil}
+\newcommand*\chem[1]{\ensuremath{\mathrm{#1}}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+
+\date{\today}
+\title{Alkane Solution}
+\author{\_\_debug}
+
+\begin{document}
+
+\maketitle
+
+\section{$T = 1, n \le 8$ 时的做法 (5 pts)}
+你学过有机化学吗...
+
+\section{$T = 1, n \le 2000$ 时的做法 (30 - 40 pts)}
+首先考虑计算对应的有根树的个数.
+
+考虑 DP.
+设状态为 $f(i, j)$, 表示当前共有 $i$ 个点, 且根的度数为 $j$.
+
+先 $1 ... n$ 枚举 $size$, 表示现在用最大子树大小为 $size$ 的情形来转移.
+不妨设 $s = \sum_{k = 0}^{3} f(size, k)$, 那么对于一个 $f(i, j)$, 再枚举一个最大子树 (即子树大小为 $size$ 的子树) 的个数 $k$, 我们便有转移
+$$f(i, j) \leftarrow f(i, j) + f(i - size \times k, j - k) \binom{s + k - 1}{k}$$
+
+这是 $O(n^2)$ 的.
+\bigskip
+
+计算烷烃的个数可以用枚举重心的技巧.
+
+首先只要某个点 $u$ 满足其子树大小都 $\leq \frac{n}{2}$, 那么这个点是这颗树的重心.
+比较显然的是, 重心最多只会有两个, 并且有两个重心的情形, 两个重心一定相邻, 并且另一个重心做根的时候, 这个重心的子树大小为 $\frac{n}{2}$ (当然 $n$ 必须要是偶数).
+然后很多无根树同构的问题就可以通过重心转化为有根树同构.
+
+我们可以在 DP 的时候, 强制 $size < \frac{n}{2}$ (注意是小于), 这样求出的 $f(i, j)$ 就是点数为 $i$ 且重心度数为 $j$ 的无根树个数.
+那么答案为
+$$\sum_{k = 0}^{4} f(n, k) + [n \bmod 2 = 0] \binom{\sum_{k = 0}^{3} f(\frac{n}{2}, k) + 1}{2}$$
+
+前一项为一个重心的情形, 后一项为两个重心的情形.
+
+总时间复杂度还是 $O(n^2)$.
+
+\section{$T = 1, n \le 10^5$ 时的做法 (60 pts)}
+先算烷基, 即有根树并且根的度数 $\le 3$.
+
+设 $A(x)$ 为烷基的个数的生成函数.
+根据 Pólya 定理, 我们有
+$$A(x) = 1 + x \frac{A(x)^3 + 3A(x)A(x^2) + 2A(x^3)}{6}$$
+
+这个可以用分治 FFT $O(n \log^2 n)$ 解, 需要用到一些技巧.
+(可不可以牛顿迭代?)
+
+同样地, 我们可以再次运用重心方法和 Pólya 定理算出烷烃的个数.
+
+\section{$T = 10^5, n \le 10^5$ 时的做法 (100 pts)}
+考虑烷烃个数的生成函数 $B(x)$.
+但是并不方便直接用 $A(x)$ 表示出 $B(x)$.
+
+对于一棵无根树, 令 $p$ 和 $q$ 分别表示这棵树的\emph{点等价类}个数和\emph{边等价类}个数.
+定义\emph{对称边}为满足连接的两个点是等价的的边 (显然这种边最多只有 1 条).
+令 $s$ 表示对称边的个数.
+  
+那么有下面这个式子恒成立:
+$$p - q + s = 1$$
+
+证明十分简单.
+$s = 0$ 时, 选任意一个重心做根, 容易证明没有其它点与这个根等价; 然后再考虑每个点及其父边的贡献即可.
+$s = 1$ 时的情况还更简单一些.
+\bigskip
+
+有了这个式子, 接下来的事情就好办了.
+对于所有 $n$ 个点的烷烃, 有:
+$$\sum p - \sum q + \sum s = \sum 1$$
+
+右边就是我们要求的.
+
+令 $P(x)$ 表示烷烃的 $\sum p$ 的生成函数.
+对于一个无根树, 选 $n$ 个点中的任意一个点做根形成互不同构的的有根树的数量就是 $p$.
+
+用一下 Pólya 定理, 我们有
+$$P(x) = x \frac{A(x^4) + 3A(x^2)^2 + 6A(x)^2A(x^2) + 8A(x)A(x^3) + 6A(x^4)}{24}$$
+
+再令 $Q(x)$ 表示烷烃的 $\sum q$ 的生成函数.
+对于一个无根树, 选 $n - 1$ 条边中的任意一条边劈开, 插入一个度数为 2 的点形成的互不同构的有根树的数量就是 $q$.
+
+类似地, 我们有
+$$Q(x) = \frac{\left(A(x)-1\right)^2 - \left(A(x^2) - 1\right)}{2}$$
+
+然后显然 $\sum s$ 的生成函数就是 $A(x^2)$.
+
+所以最终烷烃的数量的生成函数为
+$$B(x) = P(x) - Q(x) + A(x^2)$$
+
+时间复杂度为 $O(n \log^2 n + T)$.
+
+\end{document}

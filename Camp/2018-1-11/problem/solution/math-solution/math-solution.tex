@@ -1,0 +1,98 @@
+% Created 2017-01-18 Wed 17:02
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=[rgb]{0,0.37,0.53},
+  citecolor=[rgb]{0,0.47,0.68},
+  filecolor=[rgb]{0,0.37,0.53},
+  urlcolor=[rgb]{0,0.37,0.53},
+  pagebackref=true,
+  linktoc=all,}
+
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{ctex}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{multicol}
+\usepackage{amssymb}
+\tolerance=1000
+\date{\today}
+\author{fuboat}
+\title{Math Solution}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.1.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+
+其实 $S(x)$ 就是平常说的 $d(x)$\ldots{} 只是变量重名不爽所以换了个名字.
+
+首先, 显然有:
+
+\begin{align*}
+S(ij) &= \sum_{x|i} \sum_{y|j} [(x, \frac{j}{y}) = 1] \\
+      &= \sum_{x|i} \sum_{y|j} [(x, y) = 1]
+\end{align*}
+
+特殊地, 当 $(i,j) = 1$ 时, $S(ij) = S(i) \times S(j)$.
+这可以说明 $S(x)$ 是一个积性函数.
+
+于是就可以推式子了:
+
+\begin{align*}
+F(N,M) &= \sum_{i=1}^{N} \sum_{j=1}^{M} S(i^2) S(j^2) S(ij) \\
+       &= \sum_{i=1}^{N} \sum_{j=1}^{M} S(i^2) S(j^2) \sum_{x|i} \sum_{y|j} [(x, y) = 1] \\
+       &= \sum_{i=1}^{N} \sum_{j=1}^{M} S(i^2) S(j^2) \sum_{x|i} \sum_{y|j} \sum_{d|x, d|y} \mu(d) \\
+       &= \sum_{i=1}^{N} \sum_{j=1}^{M} S(i^2) S(j^2) \sum_{d|i, d|j} \sum_{x|\frac{i}{d}} \sum_{y|\frac{j}{d}} \mu(d) \\
+       &= \sum_{i=1}^{N} \sum_{j=1}^{M} S(i^2) S(j^2) \sum_{d|i, d|j} S(\frac{i}{d}) S(\frac{j}{d}) \mu(d) \\
+       &= \sum_{d=1}^{\text{min}(N,M)} \sum_{i=1}^{\lfloor\frac{N}{d}\rfloor} \sum_{j=1}^{\lfloor\frac{M}{d}\rfloor} S(i^2d^2) S(j^2d^2) S(i) S(j) \mu(d) \\
+       &= \sum_{d=1}^{\text{min}(N,M)} \mu(d) \left(\sum_{i=1}^{\lfloor\frac{N}{d}\rfloor} S(i^2d^2) S(i)\right) \left(\sum_{i=1}^{\lfloor\frac{M}{d}\rfloor} S(i^2d^2) S(i)\right)
+\end{align*}
+
+由于 $S(x)$ 是积性函数, 那么 $h(x) = S(x^2)$ 也是积性函数.
+
+所以有:
+
+\begin{align*}
+F(N,M) &= \sum_{d=1}^{\text{min}(N,M)} \mu(d) \left(\sum_{i=1}^{\lfloor\frac{N}{d}\rfloor} h(id) S(i)\right) \left(\sum_{i=1}^{\lfloor\frac{M}{d}\rfloor} h(id) S(i)\right)
+\end{align*}
+
+首先线性筛筛出 $S(x), h(x)$.
+
+暴力求是单次 $O(n \log n)$ 的. 这样就有 $40$ 分了.
+
+可以预处理一下前缀和, 做到预处理 $O(n \log n)$, 单次询问 $O(n)$, 但是需要 $O(n \log n)$ 的辅助空间. $50$ 分到手.
+
+到目前为止还是太水了.
+
+接下来 $10$ 分的部分分, 由于 $N = M$, 任意时刻 $\lfloor\frac{N}{d}\rfloor = \lfloor\frac{M}{d}\rfloor$, 所以可以分块.
+
+接下来 $10$ 分的部分分, 由于 $M$ 唯一, 所以可以离线出所有的答案. 因为对于所有的 $d$, 当 $N$ 从 $1$ 取到 $10^5$ 时, $\lfloor\frac{N}{d}\rfloor$ 一共也只会变化 $2 \times 10^5 \log 2 \times 10^5$ 次, 所以复杂度一定是正确的.
+
+我的做法:
+
+由于当 $d$ 取 $[5 \times 10^3, 2 \times 10^5]$ 时, $\lfloor \frac{N}{d} \rfloor$ 一共只会有 $20$ 种取值, 所以 $N, M$ 组合起来也不过 $400$ 种取值, 不妨全部预处理出来, 当枚举到的 $d$ 在 $[5 \times 10^3, 2 \times 10^5]$ 中时, 用预处理好的答案分块做; 否则暴力做. 暴力做的规模变为了原来的 $\frac{1}{20}$ , 可以接受.
+
+垃圾出题人卡常?
+
+模数是 $2^{30}$, 自然溢.
+
+至于为什么要卡常, 主要是因为卡常之后的暴力跑得太快了, 也是为了避免被水过去.
+% Emacs 25.1.1 (Org mode 8.2.10)
+\end{document}

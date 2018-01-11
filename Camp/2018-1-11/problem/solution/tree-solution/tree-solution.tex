@@ -1,0 +1,85 @@
+% Created 2017-01-18 Wed 21:14
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry}
+
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=[rgb]{0,0.37,0.53},
+  citecolor=[rgb]{0,0.47,0.68},
+  filecolor=[rgb]{0,0.37,0.53},
+  urlcolor=[rgb]{0,0.37,0.53},
+  pagebackref=true,
+  linktoc=all,}
+
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage{ctex}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{multicol}
+\usepackage{amssymb}
+\tolerance=1000
+\author{h10}
+\date{\today}
+\title{Tree Solution}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 25.1.1 (Org mode 8.2.10)}}
+\begin{document}
+
+\maketitle
+
+大家知道什么叫做暴力美学吗?
+就是用暴力来 A 一道题.
+
+没错这题的核心思想就是暴力.
+维护 $[2, n]$ 的父亲, 注意当一整个区间的父亲都是一样的时候, 我们将这个区间合并起来.
+
+如当 \texttt{fa[]} 数组为 \texttt{fa[2]=1}, \texttt{fa[3]=1} , \texttt{fa[4]=1}, \texttt{fa[5]=4}, \texttt{fa[6]=4}, \texttt{fa[7]=2} , \texttt{fa[8]=2} 时, 我们维护的东西长这样
+$$[2,3,4]\;[5,6]\;[7,8]$$
+
+如果我们将 $[3,7]$ 的父亲赋值为 1, 将变成 
+$$[2]\;[3,4,5,6,7]\;[8]$$
+
+注意每次操作最多会切开两个断点, 每个断点处理一次就会消失, 所以哪怕暴力维护也只用搞 $O(n)$ 次.
+
+考虑用 Splay 维护树的括号序列, 于是每次操作就变成了将 Splay 上连续的一段移动到另一个位置.
+但是维护的时候要小心, 如对于这个括号序列 
+\begin{verbatim}
+((())()) 
+12332441
+\end{verbatim}
+
+如果我们将 4 的父亲赋值为 2 
+\begin{verbatim}
+((()())) 
+12443321
+\end{verbatim}
+
+这样就错了.
+3 与 4 的顺序搞反了.
+
+在这组数据里没有什么问题, 数据大一点就会出奇怪的问题.
+正确的是这样
+\begin{verbatim}
+((()())) 
+12334421
+\end{verbatim}
+
+要是你问我怎么避免, 我只能说无可奉告.
+对每个点开个 \texttt{set} 记录它的儿子就好了.
+当然 \texttt{set} 里的东西还得要能合并就合并.
+% Emacs 25.1.1 (Org mode 8.2.10)
+\end{document}
