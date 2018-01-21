@@ -35,9 +35,9 @@
 ​	距离在这里指**包含开始和结尾的字符个数。**
 
 ```
-str:	# a # b # a # a #
-RL:		1 2 1 4 1 2 3 2 1 
-RL - 1:	0 1 0 3 0 1 2 1 0
+str:     # a # b # a # a #
+RL:      1 2 1 4 1 2 3 2 1 
+RL - 1:  0 1 0 3 0 1 2 1 0
 ```
 
 ​	观察上例，发现 **$RL_i - 1$ 的值正是原字符串以 i 为对称轴的最长回文子串的长度。** 
@@ -54,7 +54,7 @@ RL - 1:	0 1 0 3 0 1 2 1 0
 
 ​	**我们的任务是求 RL 数组。**
 
-​	![Manacher 1](Manacher 1.png)
+​	![Manacher 1](pic\Manacher 1.png)
 
 ​	我们需要维护==两个变量：maxRight 和 center。==maxRight 代表从左到右处理时已经到达过的最右位置（它是一个回文子串的端点），center 代表 maxRight 对应的回文子串的回文中心。
 
@@ -64,22 +64,74 @@ RL - 1:	0 1 0 3 0 1 2 1 0
 
 ①若 i 在 maxRight 左边
 
-![Manacher 2](Manacher 2.png)
+![Manacher 2](pic\Manacher 2.png)
 
 ​	上图应该是最简单的情况了。**我们找到 i 关于 center 对称的点 j，发现 j 的回文半径居然还不足以触及到 center！**所以此时 $RL_i = RL_j$。（1）
 
-​	![Manacher 3](Manacher 3.png)
+​	![Manacher 3](pic\Manacher 3.png)
 
 ​	当 j 的回文半径更大，超过了 center 时，我们只能知道 **i 到 maxRight 是以 i 为回文中心的最小回文半径（粗虚线）。**能否到细虚线**或是更远**，只能扩张 i 并且**更新 maxRight 和 center** 来检查了。（2）
 
 ②当 i 在 maxRight 的右边
 
-![Manacher 4](Manacher 4.png)
+![Manacher 4](pic\Manacher 4.png)
 
 ​	**只有唯一一种情况：i 与 maxRight 相邻。**这时让回文半径从 1 开始（即从 i 开始）不断扩张，直到**不再回文或到达边界，同时更新 center 和 maxRight 即可。**（3）
 
 ​	==总的来说分成三种情况，但其中（1）（2）一并处理，以代码实现为准。==
 
-##### 5.时空复杂度
+##### 5. 时空复杂度
 
 ​	空间复杂度明显是线性的。由于扩张 maxRight 的操作对于每个位置只会进行一次，因此我们得到：Manacher 的时间复杂度是线性的。
+
+##### 6. 参考代码
+
+```c++
+struct Manacher
+{
+	INT length;
+	std::vector<char> a;
+	std::vector<INT> f;
+	INT maxLength;
+	Manacher(const char* str)
+	{
+		length = strlen(str);
+		a.resize(length * 2 + 1);
+		f.resize(length * 2 + 1);
+		INT pos = 0;
+		a[pos++] = '#';
+		for (int i = 0; i < length; i++)
+		{
+			a[pos++] = str[i];
+			a[pos++] = '#';
+		}
+		manacher();
+	}
+	void manacher()
+	{
+		INT center; //undefined
+		INT maxRight = -1; //闭区间
+		for (int i = 0; i < a.size(); i++)
+		{
+			if (i <= maxRight)
+			{
+				//i + j == 2 * center
+				f[i] = std::min(f[2 * center - i], maxRight - i + 1);
+			}
+			else
+				f[i] = 1;
+
+			while (i - f[i] >= 0 && i + f[i] < a.size() && a[i - f[i]] == a[i + f[i]])
+				f[i]++;
+
+			if (i + f[i] - 1 > maxRight)
+			{
+				maxRight = i + f[i] - 1;
+				center = i;
+			}
+			maxLength = std::max(maxLength, f[i]);
+		}
+		maxLength--;
+	}
+};
+```

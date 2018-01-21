@@ -44,11 +44,11 @@
 
 ​	==$n - 1$ 一定为偶数，设 $r = a^{\frac {n - 1}{2}}$ 。==我们可以知道，$r^2 ≡ 1(mod \, p)$。此时可以用二次探测定理，检查 $p$ 是否为素数。
 
-​	如果我们得到 $r = -1$[^ 1 ]，那么我们就没有什么好检测的了，可以得出 $n$ 可能为素数；如果 $r = 1$，且 $\frac {n - 1} {2}$ 仍然为偶数，我们可以令 $r' = a^{\frac {n - 1} {4}}$ 继续进行二次探测；若 $\frac {n - 1} {2}$ 不是偶数，我们就无法继续二次探测，也可以得出 $n$ 可能为素数的结论。如果 $r \ne ±1$，那么 $n$ 一定不是素数。
+​	如果我们得到 $r = -1$[^1]，那么我们就没有什么好检测的了，可以得出 $n$ 可能为素数；如果 $r = 1$，且 $\frac {n - 1} {2}$ 仍然为偶数，我们可以令 $r' = a^{\frac {n - 1} {4}}$ 继续进行二次探测；若 $\frac {n - 1} {2}$ 不是偶数，我们就无法继续二次探测，也可以得出 $n$ 可能为素数的结论。如果 $r \ne ±1$，那么 $n$ 一定不是素数。
 
-​	用不同的 $a​$ 检查多次后，我们就能得出 $n​$ 是否为素数。
+​	用不同的 $a$ 检查多次后，我们就能得出 $n$ 是否为素数。
 
-[^ 1 ]: 为了简便，就不写同余符号了。用等号代替同余符号。
+[^1]: 为了简便，就不写同余符号了。用等号代替同余符号。
 
 ######②a 的选取
 
@@ -64,7 +64,7 @@
 
 ######③实际操作
 
-​	实际上，我们在二次探测时不必从大到小迭代，而是可以先将 $n - 1$ 分解成 $2^k × r$ 的形式。[^ 2 ]
+​	实际上，我们在二次探测时不必从大到小迭代，而是可以先将 $n - 1$ 分解成 $2^k × r$ 的形式。[^2]
 
 ​	首先判断 $r$。 可知，只要 $a^r$ 是 1 或者 -1 就说明了 $a$ 可能是素数。**注意，$k$ 肯定是大于等于 1 的，否则 $n$ 就是一个偶数。**由于 1 或者 -1 的平方肯定是 1，最终能够满足费马小定理，也满足了二次探测定理，所以可以得出 $n$ 可能是素数的结论。
 
@@ -72,7 +72,7 @@
 
 ​	==**最后，如果我们还没有退出，那它连费马素性测试也没有通过，所以一定不是质数。**==
 
-[^ 2 ]: 这个地方是实际的更方便快速的做法，真正的原理在上文！
+[^2]: 这个地方是实际的更方便快速的做法，真正的原理在上文！
 
 ###### ④乘法
 
@@ -105,7 +105,7 @@ bool check(ULL n, ULL a)
 {
 	ULL r = n - 1;
 	ULL c2 = 0;
-	while(!(r & 1)
+	while (!(r & 1)
 	{
 		c2++;
 		r >>= 1;
@@ -113,29 +113,29 @@ bool check(ULL n, ULL a)
 
 	//ULL power(ULL x, ULL y, ULL mod);
 	ULL x = power(a, r, n);
-	if(x == 1 || x == n - 1) return true;
-	while(c2--)
+	if (x == 1 || x == n - 1) return true;
+	while (c2--)
 	{
 		//ULL mul(ULL x, ULL y, ULL mod);
 		x = mul(x, x, n);
-		if(x == n - 1 && c2) return true;
+		if (x == n - 1 && c2) return true;
 	}
 	return false;
 }
 bool Miller_Rabin(ULL n)
 {
-	if(n < 2) return false;
-	else if(n == 2) return true;
+	if (n < 2) return false;
+	else if (n == 2) return true;
 
 	const ULL a[] = { 2, 7, 61 };
 	ULL size = sizeof(a) / sizeof(ULL);
-	for(int i = 0; i < size; i++)
+	for (int i = 0; i < size; i++)
 	{
-		if(n == a[i]) return true;
-		else if(n % a[i] == 0) return false;
+		if (n == a[i]) return true;
+		else if (n % a[i] == 0) return false;
 	}
-	for(int i = 0; i < size; i++)
-		if(!check(n, a[i])) return false;
+	for (int i = 0; i < size; i++)
+		if (!check(n, a[i])) return false;
 	return true;
 }
 ```
