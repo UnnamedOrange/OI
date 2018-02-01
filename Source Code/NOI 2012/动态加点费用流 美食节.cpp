@@ -1,3 +1,5 @@
+#pragma G++ optimize(3)
+#pragma GCC optimize(3)
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -58,11 +60,26 @@ void printOut(INT x)
 }
 
 INT INF;
-const INT maxn = 65;
-const INT maxm = 15;
+const INT maxn = 45;
+const INT maxm = 105;
+const INT maxp = 805;
 INT n, m;
-INT times[maxm][maxn];
+INT meals[maxn];
+INT times[maxn][maxm];
 
+bool added[maxm][maxp];
+inline int encode(int i, int j)
+{
+	return n + (i - 1) * meals[0] + j;
+}
+inline long long decode(int code)
+{
+	code -= n;
+	long long h = code / meals[0] + 1;
+	long long l = code % meals[0];
+	if (!l) h--, l += meals[0];
+	return (h << 32) | l;
+}
 struct NetworkFlow
 {
 	struct Edge
@@ -75,12 +92,6 @@ struct NetworkFlow
 	std::vector<std::vector<int> > G;
 	INT s, t;
 
-	void init()
-	{
-		G.resize(n + n * m + 2);
-		s = 0;
-		t = G.size() - 1;
-	}
 	void addEdge(INT from, INT to, INT cap, INT cost)
 	{
 		edges.push_back(Edge(from, to, cap, cost));
@@ -89,31 +100,53 @@ struct NetworkFlow
 		G[from].push_back(i - 2);
 		G[to].push_back(i - 1);
 	}
+	void addCook(INT i, INT j)
+	{
+		if (added[i][j]) return;
+		added[i][j] = true;
+		int idx = encode(i, j);
+
+		addEdge(idx, t, 1, 0);
+		for (int k = 1; k <= n; k++)
+			addEdge(k, idx, 1, j * times[k][i]);
+	}
+	void clear()
+	{
+		G.resize(m * meals[0] + n + 2);
+		s = 0;
+		t = G.size() - 1;
+		for (int i = 1; i <= n; i++)
+			addEdge(s, i, meals[i], 0);
+
+		for (int i = 1; i <= m; i++)
+			addCook(i, 1);
+	}
 
 	struct Queue
 	{
-		static const INT size = maxn * maxm;
+		static const INT size = maxm * maxp;
 		INT c[size];
 		INT head, tail;
 		Queue() : head(), tail() {}
+		bool empty() { return head == tail; }
 		void clear() { head = tail = 0; }
 		void push(INT x) { c[tail] = x; tail = (tail + 1) % size; }
 		void pop() { head = (head + 1) % size; }
-		bool empty() { return head == tail; }
 		INT front() { return c[head]; }
 	} q;
-	INT dis[maxn * maxm];
-	INT opt[maxn * maxm];
-	INT pre[maxn * maxm];
-	bool inQ[maxn * maxm];
+	INT dis[maxm * maxp];
+	INT opt[maxm * maxp];
+	INT pre[maxm * maxp];
+	bool inQ[maxm * maxp];
 	bool Bellman_Ford(INT& flow, INT& cost)
 	{
+		q.clear();
 		memset(dis, 0x3f, sizeof(dis));
 		memset(opt, 0, sizeof(opt));
-		q.clear();
+
+		q.push(s);
 		dis[s] = 0;
 		opt[s] = INF;
-		q.push(s);
 		inQ[s] = true;
 		while (!q.empty())
 		{
@@ -144,6 +177,8 @@ struct NetworkFlow
 			edges[pre[u]].flow += opt[t];
 			edges[pre[u] ^ 1].flow -= opt[t];
 		}
+		long long c = decode(edges[pre[t]].from);
+		addCook(c >> 32, (c & 0xffffffff) + 1);
 		return true;
 	}
 	INT MinCost()
@@ -154,31 +189,20 @@ struct NetworkFlow
 	}
 } nf;
 
-inline int code(INT x, INT y)
-{
-	return n + (x - 1) * n + y;
-}
 void run()
 {
 	memset(&INF, 0x3f, sizeof(INF));
-	m = readIn();
 	n = readIn();
+	m = readIn();
+	for (int i = 1; i <= n; i++)
+		meals[0] += meals[i] = readIn();
+
 	for (int i = 1; i <= n; i++)
 		for (int j = 1; j <= m; j++)
-			times[j][i] = readIn();
+			times[i][j] = readIn();
 
-	nf.init();
-	for (int i = 1; i <= n; i++)
-		nf.addEdge(nf.s, i, 1, 0);
-	for (int i = 1; i <= m; i++)
-		for (int j = 1; j <= n; j++)
-			nf.addEdge(code(i, j), nf.t, 1, 0);
-	for (int i = 1; i <= n; i++)
-		for (int j = 1; j <= m; j++)
-			for (int k = 1; k <= n; k++)
-				nf.addEdge(i, code(j, k), 1, times[j][i] * k);
-
-	printf("%.2f\n", (double)nf.MinCost() / n);
+	nf.clear();
+	printOut(nf.MinCost());
 }
 
 int main()
