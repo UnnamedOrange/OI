@@ -1,0 +1,21 @@
+20
+2 pamffo 1 1
+2 compress 1 6
+2 responsibility 5 7
+2 responsibility 10 10
+1 compress 15
+1 pdd 17
+1 pamffo 20
+2 pamffo 21 23
+1 responsibility 25
+1 compress 29
+1 responsibility 34
+1 pamffo 35
+1 responsibility 36
+1 compress 40
+2 pdd 29 41
+2 resposibility 40 43
+1 db 45
+2 comeinmy 43 49
+2 comeinmy 7 53
+1 db 57

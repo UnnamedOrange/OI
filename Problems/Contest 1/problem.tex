@@ -1,0 +1,230 @@
+\documentclass[12pt, hyperref, UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮 
+\usepackage{xcolor}
+\usepackage{ulem} %用于各种线
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+\title{基础题}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+
+	\maketitle
+	\bigskip
+	\begin{center}
+		\Large{所有测试均\textbf{不}打开~-O2~编译选项}
+
+		\Large{所有测试均\textbf{不}打开~-std=c++11~编译选项}
+
+		\vspace{15mm}
+		\Large{题目难度与顺序无关}
+		
+		\Large{数据很弱，欢迎水过}
+	\end{center}
+	
+	\newpage
+	\section{Wander \small{wander.cpp/wander.in/wander.out
+	(TL: 1s, ML: 512 MiB)}}
+
+	\subsection{Description}
+	众而周知，2018-1-31 是个神奇的日子。这天晚上，不仅有百年一遇的蓝月，
+	还有千年一遇的奇观 ~ —— ~ wyf 梦游。
+	
+	具体地说，wyf 梦见自己正在一张奇怪的图中。
+	这张图有~$n$~个结点，$m$~条 \textbf{带权有向边}。
+	此时，wyf 正在结点~$1$，而教室竟然在遥远的结点~$n$！
+	
+	wyf~自然是很害怕迟到的，于是他想知道从~$1$~到~$n$~的最短路有多长。
+
+	想必大家是知道的，做梦时人经常会闪现。
+	wyf~也是这样：虽然他不能梦游时在现实世界中闪现，
+	但是在梦境中闪现一下，wyf~也是很在行的。
+
+	于是他\textbf{还}想知道：
+	\underline{若能够将任意一条边的边权变为~0}，从~$1$~到~$n$~的最短路有多长。
+
+	\subsection{Input}
+	第一行输入两个整数~$n$~和~$m$~代表点数和边数。
+
+	接下来的~$m$~行，每行输入三个整数，代表一条边的起点，终点和边权。
+
+	\subsection{Output}
+	输出包含两个整数。
+
+	第一个整数，代表在原图中~$1$~到~$n$~的最短路长度。
+
+	第二个整数，代表在能够将任意一条边的边权变为~$0$~的条件下，$1$~到~$n$~的最短路。
+
+	\subsection{Special Judge}
+	这道题使用~Special Judge。
+	
+	如果你正确输出了第一个答案，你将获得~$40\%$~的分数。
+
+	如果你正确输出了第二个答案，你将获得~$60\%$~的分数。
+
+	如果你不知道某个答案，请最好输出~$0$。
+	这不仅可以防止错误判断你的正确答案，也能增加你在本题中得分的几率。
+
+	\newpage
+	\subsection{Sample Input}
+	3 3
+	
+	1 2 5
+	
+	2 3 4
+	
+	1 3 10
+
+	\subsection{Sample Output}
+	9
+
+	0
+
+	\subsection{Range}
+	对于~$5\%$~的数据，wfy~就在教室里。
+	
+	对于另外~$5\%$~的数据，$n, m \le 10$。
+
+	对于另外~$20\%$~的数据，$n \le 400$，$m \le 600$。
+
+	对于另外~$20\%$~的数据，数据保证随机。
+
+	对于~$100\%$~的数据，$n, m \le 200000$，
+	\underline{边权~$\le 10^9$~且为正整数。}
+
+	可能有重边和自环~——~但是这并不影响聪明的你解决这个问题。
+
+	\subsection{Hint}
+	请注意输入输出时程序的效率。
+
+	请注意数据类型。
+
+	如果不明白~Special Judge~是什么意思，你可以理解为这道题有部分分。
+
+	因为没有开启~-O2~编译选项，所以请注意自己程序的效率。
+
+	请注意自己程序的时间复杂度。
+
+	\newpage
+	\section{Gene \small{gene.cpp/gene.in/gene.out
+	(TL: 1s, ML: 512 MiB)}}
+
+	\subsection{Description}
+	众而周知，yzm~是一位生竞大神。这天，yzm~正在研究一堆神奇的基因序列，
+	然而他被巨大的计算量吓住了，所以他决定向你求助。
+
+	一个基因序列可以抽象为一个\textbf{包含有~$c_i$~个数的正整数序列。}
+	yzm~的任务是，把给定的~$n$~个序列按一定顺序排序。
+	yzm~是个有强迫症的人，为了好看，他决定\textbf{以长度为第一关键字，从小到大排序。}
+	形式化地，若排好序后给每个序列重新从~1~到~n~编号，则有~$c_1 \le c_2 \le ... \le c_n$。
+
+	对于长度一样的序列，yzm~决定按字典序\textbf{从大到小}进行排序。
+	形式化地，若排好序后给每个序列重新从~1~到~n~编号，对于长度相同的序列，
+	有~$d_{i} \ge d_{i + 1} \ge d_{i + 2} \ge ... \ge d_{i + k}$，
+	其中~$d_i$~代表第~i~个序列的字典序。
+
+	yzm~并不想知道这堆序列最后长什么样子。他决定将原始的序列从~$1$~到~$n$~编号，然后一一告诉你。
+	你的任务是告诉他最终的编号。
+	形式化地，设最后的答案为~$t_i$，设~$<$~为按以上要求比较的小于号，
+	则有~$a_{t_1} < a_{t_2} < a_{t_3} < ... < a_{t_n}$。
+	特别地，\textbf{如果原来有两个相同的序列~$a_i$~和~$a_j$ $(i < j)$，
+	那么在输出时~$i$~应该在~$j$~之前输出。}
+
+	\subsection{Input}
+	第一行输入一个整数~$n$，代表有~$n$~个序列。
+
+	接下来的~$n$~行，每行首先输入一个整数~$c_i$，代表第~$i$~个序列有~$c_i$~个数。
+	接下来输入~$c_i$~个整数，表示第~$i$~个序列的~$c_i$~个整数~$a_{i, j}$。
+
+	\subsection{Output}
+	输出包含一行~$n$~个整数，代表题目中要求输出的编号。
+	
+	\newpage
+	\subsection{Sample Input}
+	10
+
+	5 4 4 6 10 10
+	
+	5 10 3 3 6 4
+	
+	2 7 5
+	
+	5 5 10 10 7 4
+	
+	3 10 9 3
+	
+	1 1
+	
+	2 10 1
+	
+	1 9
+	
+	3 2 7 8
+
+	1 9
+
+	\subsection{Sample Output}
+	8 10 6 7 3 5 9 2 4 1
+
+	\subsection{Range}
+	对于~$10\%$~的数据，$n \le 10$，$\max \{ c_i \} \approx 5$。
+
+	对于~$30\%$~的数据，$n \le 10^3$，$\max\{ c_i \} \approx 10^2$，
+	$c_i = c_j (i \ne j)$。
+
+	对于~$50\%$~的数据，$n \le 10^3$，$\sum c_i \approx 10^5$。
+	
+	对于~$80\%$~的数据，保证不会出现相同的序列。
+
+	对于~$100\%$~的数据，$n \le 10^4$，$\sum c_i \approx 10^6$，$|a_{i, j}| \le 10^9$。
+
+	\subsection{Hint}
+	约等号是什么意思呢？就是叫你用~vector~的意思。
+
+	\newpage
+	\section{Joseph \small{joseph.cpp/joseph.in/joseph.out
+	(TL: 1s, ML: 512 MiB)}}
+
+	\subsection{Description}
+	众而周知，约瑟夫问题是一个经典的问题，这道题就是要你解决经典的约瑟夫问题。
+
+	\bigskip
+
+	有~$n$~只野生~zys~站成一圈，标号为~$1$~到~$n$。
+	编号为~$1$~的~zys~从~$1$~开始报~$1$，然后编号为~$2$~的~zys~报~$2$……
+	当报数报到~$m$~的时候，报~$m$~的~zys~就离开这个圈，
+	然后他的下一个~zys~开始报~$1$……
+
+	最后整个圈就只剩下一只~zys~了。请你输出他的编号。
+
+	\subsection{Input}
+	输入包含一行两个正整数~$n$，$m$。
+
+	\subsection{Output}
+	输出包含一行一个正整数，代表最后一只~zys~的编号。
+
+	%\newpage
+	\subsection{Sample Input}
+	5 3
+
+	\subsection{Sample Output}
+	4
+
+	\subsection{Range}
+	对于~$30\%$~的数据，$n \le 10^2$，$nm \le 10^5$。
+
+	对于~$60\%$~的数据，$nm \le 10^7$。
+	
+	对于~$80\%$~的数据，$n \le 10^7$，$m \le 10^9$。
+	
+	对于另外~$20\%$~的数据，$n \le 10^9$, $m = 2$。
+
+\end{document}
