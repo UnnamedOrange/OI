@@ -1,0 +1,53 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮 
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+pdfauthor={Orange}
+}
+
+\title{标题}
+\author{Orange}
+\date{\today}
+
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 1 \small(gcd1.cpp / gcd1.in / gcd1.out) TL: 1 s / ML: 256 MiB}
+	\subsection{问题描述}
+	给定整数 $n$，
+	求 $1 \le x, y \le n$ 且 $\gcd(x, y)$ 为素数的数对 $(x, y)$ 有多少对。
+
+	可以注意到，答案在 long long 范围内。
+
+	\subsection{输入}
+	输入包含一行一个整数 $n$。
+
+	\subsection{输出}
+	输出包含一行一个整数，代表答案。
+
+	\subsection{样例}
+	\subsubsection{输入}
+	4
+
+	\subsubsection{输出}
+	4
+
+	\subsubsection{解释}
+	有四个点对：
+	$(2, 2)$，$(2, 4)$，$(3, 3)$，$(4,2)$。
+
+	\subsection{数据规模与约定}
+	对于 $100\%$ 的数据，$n \le 10^7$。
+
+\end{document}

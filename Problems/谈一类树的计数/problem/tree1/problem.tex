@@ -1,0 +1,68 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Count Tree 1}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{Count Tree 1 \small(tree1.cpp / tree1.in / tree1.out) TL: 1 s / ML: 512 MiB}
+	\subsection{问题描述}
+	给定一个数 $n$，以及 $n$ 个数 $d_i$。
+	试求出有 $n$ 个结点的有标号无根树的个数。
+	要求点 $i$ 的度数不超过 $d_i$。
+
+	答案对 $998244353$ 取模。
+
+	\subsection{输入}
+	输入包含两行。
+
+	第一行包含一个正整数 $n$，代表结点总数。
+
+	第二行包含 $n$ 个正整数 $d_i$，代表每个结点的度数上限。
+
+	\subsection{输出}
+	输出包含一行一个整数，代表答案。
+
+	\subsection{样例}
+	\subsubsection{输入}
+	3
+
+	1 2 3
+
+	\subsubsection{输出}
+	2
+
+	\subsubsection{解释}
+	如果没有限制，3 个点的有标号无根树有 3 个，分别是：
+	\begin{center}
+		2 - 1 - 3 \qquad 1 - 2 - 3 \qquad 2 - 3 - 1
+	\end{center}
+
+	但因为结点 1 的度数最多为 1，所以只有两种方案：
+	\begin{center}
+		1 - 2 - 3 \qquad 2 - 3 - 1
+	\end{center}
+
+	\subsection{数据规模与约定}
+	对于 $30\%$ 的数据，$n \le 11$。
+
+	对于 $100\%$ 的数据，$n \le 500$。
+
+\end{document}

@@ -1,0 +1,58 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Count Tree 2}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{Count Tree 2 \small(tree2.cpp / tree2.in / tree2.out) TL: 1 s / ML: 512 MiB}
+	\subsection{问题描述}
+	给定一个数 $n$，
+	试求出有 $n$ 个结点的无标号有根树的个数。
+
+	答案对 $998244353$ 取模。
+
+	\subsection{输入}
+	输入包含一行一个正整数 $n$，代表结点总数。
+
+	\subsection{输出}
+	输出包含一行一个整数，代表答案。
+
+	\subsection{样例}
+	\subsubsection{输入}
+	3
+
+	\subsubsection{输出}
+	2
+
+	\subsubsection{解释}
+	有两种情况：
+	\begin{gather*}
+		\mathrm{root} - \mathrm{node} - \mathrm{node}
+		\\
+		\mathrm{node} - \mathrm{root} - \mathrm{node}
+	\end{gather*}
+
+	\subsection{数据规模与约定}
+	对于 $30\%$ 的数据，$n \le 11$。
+
+	对于 $100\%$ 的数据，$n \le 2000$。
+
+\end{document}
