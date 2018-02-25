@@ -2,7 +2,7 @@
 \usepackage{ctex}
 \usepackage{hyperref} %用于设置 PDF 的信息
 \usepackage{setspace} %用于设置行间距
-\usepackage{listings} %用于代码高亮 
+\usepackage{listings} %用于代码高亮
 \usepackage{xcolor} %用于处理颜色
 \usepackage{ulem} %用于各种线
 \usepackage{amsmath} %用于数学公式（如 \begin{align}）
@@ -13,17 +13,17 @@
     pdfauthor={Orange}
 }
 
+\setmonofont{Consolas} %设置字体
 \lstset{
-    numbers=left, 
-    numberstyle= \tiny, 
-    keywordstyle= \color{blue!100},
-    commentstyle= \color{red!50!green!50!blue!50}, 
-    frame=box,
-    rulesepcolor= \color{red!20!green!20!blue!20},
-    %escapeinside=``, % 英文分号中可写入中文
-    xleftmargin=2em,xrightmargin=2em, aboveskip=1em,
-    framexleftmargin=0em
-} 
+    basicstyle = \footnotesize\ttfamily,
+    numbers = left,
+    numberstyle = \tiny,
+    keywordstyle = \color{blue!100},
+    commentstyle = \color{red!50!green!50!blue!50},
+    rulesepcolor = \color{red!20!green!20!blue!20},
+    xleftmargin = 2em, xrightmargin = 2em, aboveskip = 1em,
+}
+
 
 \title{快速数论变换 FNTT}
 \author{Orange}
@@ -48,7 +48,7 @@
 
     本文从 FFT 的推导过程出发，
     在模意义下的整数域中讨论快速数论变换，并给出有效的实现。
-    
+
     \bigskip
     \leftline{关键词：数论变换（Number Theoretic Transform，NTT）}
 
@@ -79,7 +79,7 @@
         \qquad (0 \le k < n) \notag
     \end{align}
     其中 $x$ 代表时域序列，$X$ 代表频域序列。
-    
+
     \bigskip
     利用 $n$ 次单位复数根的特殊性质，
     可以将 DFT 的时间复杂度优化为 $O(n \log n)$，
@@ -148,7 +148,7 @@
     \end{gather}
 
     $(1)$ 代表的性质使得 DFT 满足\textbf{循环卷积特性}。
-    
+
     $(2)$ 代表\textbf{消去引理}。
     结合 $(1)$ 和 $(2)$，我们可以得到\textbf{折半引理}。
 
@@ -156,7 +156,7 @@
 
     \bigskip
     已经证明，在复数域中，DFT 是唯一满足循环卷积特性的变换。
-    
+
     \bigskip
     能否在别的代数系统中找到类似的变换呢？
 
@@ -254,7 +254,7 @@
     所以我们可以任选一个 $m$。为了保证存在逆元，
     \textbf{我们强行规定 $m$ 为一个质数，
     并且重新定义符号 $p$ 代表新的模数。}
-    
+
     \bigskip
     现在只需要证明：
     \begin{equation*}
@@ -283,7 +283,7 @@
         \sum_{k = 0}^{n - 1} a^{k(i - j)} \equiv 0 \pmod {p}
     \end{equation*}
     即可得证。
-    
+
     \bigskip
     可以将左式看作等比数列求和，化简左式，易得：
     \begin{equation*}
@@ -294,7 +294,7 @@
     \begin{equation*}
         a^n \equiv 1 \pmod {p}
     \end{equation*}
-    
+
     要使上式成立，必须有：
     \begin{equation*}
         a^k \not \equiv 1 \pmod {p} \qquad (1 \le k < n)
@@ -331,7 +331,7 @@
         \\
         a^i \not \equiv a^j \pmod {p} \qquad (0 \le i < j < p - 1)
     \end{gather*}
-    
+
     如果我们有：
     \begin{equation*}
         p - 1 = k · n
@@ -344,7 +344,7 @@
     \bigskip
     注意到，$n$ 可能是一定数据范围内的任意取值，
     所以要使 $p - 1 = k · n$ 对于任意的 $n$ 都满足是不可能的。
-    
+
     对比快速傅里叶变换，我们要求 $n = 2^t$ 是为了让问题可以不断分治。
     这里我们也需要用到这个思路。
     \textbf{我们强制规定 $n = 2^t$，如果原长度不足 $2^t$，则补 $0$ 至 $n$ 位。}
@@ -359,7 +359,7 @@
     $p = k · 2^t + 1$ 且为质数，
     $g = k · 2^{t'}$，
     能够解决 $n = \frac {2^t} {2^{t'}}$ 问题。
-    
+
     再次明确为什么要这么规定 $p$ 和 $g$ 的取值：
     令 $p$ 为质数的原因是保证存在 $n^{-1}$
     且保证存在原根。
@@ -381,15 +381,15 @@
     容易得到，直接进行 NTT 和 INTT 的时间复杂度为 $O(n^2)$。
     我们可以用类似快速傅里叶变换的方法，
     进行快速数论变换（Fast Number Theoretic Transform，FNTT）。
-    
+
     \subsubsection{循环卷积特性和三个引理}
     在快速傅里叶变换中，我们用到了 $n$ 次单位复数根带来的循环卷积特性
     和三个引理：
-    
+
     \qquad {1.消去引理}
-    
+
     \qquad {2.折半引理}
-    
+
     \qquad {3.求和引理}
 
     \bigskip
@@ -424,7 +424,7 @@
     由上式，易得在模 $p$ 意义下只有 $\frac {n} {2}$ 个不同的数。
     即证明了折半引理。
 
-    \subsubsection{快速数论变换}	
+    \subsubsection{快速数论变换}
     能够实现快速傅里叶变换，得益于循环卷积特性和三个引理。
     现在在模 $p$ 意义下，循环卷积特性和三个引理也得证了。
     能否用相同的方法推导出快速数论变换呢？
@@ -440,10 +440,10 @@
 
     可以分解成两个多项式的线性变换：
     \begin{gather*}
-        X_k^{[0]} = x_0 + x_2 · g_n^{2k} + \cdots 
+        X_k^{[0]} = x_0 + x_2 · g_n^{2k} + \cdots
         + x_{n - 2} · g_n^{(n - 2)k}
         \\
-        X_k^{[1]} = x_1 + x_3 · g_n^{2k} + \cdots 
+        X_k^{[1]} = x_1 + x_3 · g_n^{2k} + \cdots
         + x_{n - 1} · g_n^{(n - 2)k}
         \\
         X_k = X_k^{[0]} + g_n^k · X_k^{[1]}
@@ -451,10 +451,10 @@
 
     由消去引理，两个多项式分别为：
     \begin{gather*}
-        X_k^{[0]} = x_0 + x_2 · g_{\frac {n}{2}}^{k} + \cdots 
+        X_k^{[0]} = x_0 + x_2 · g_{\frac {n}{2}}^{k} + \cdots
         + x_{n - 2} · g_{\frac {n}{2}}^{\frac {n - 2} {2} k}
         \\
-        X_k^{[1]} = x_1 + x_3 · g_{\frac {n}{2}}^{k} + \cdots 
+        X_k^{[1]} = x_1 + x_3 · g_{\frac {n}{2}}^{k} + \cdots
         + x_{n - 1} · g_{\frac {n}{2}}^{\frac {n - 2} {2} k}
     \end{gather*}
 
@@ -559,9 +559,10 @@ struct FNTT
 
     有时候，受代码常数影响，NTT 比 FFT 运行得要慢一点，
     但是整体上 NTT 运行得要快一点，且内存占用比 FFT 少得多。
-    
+
     NTT 不受浮点误差影响。
 
+    \newpage
     \section{附表：部分质数与其对应的原根}
     \begin{equation*}
         p = k · 2^t + 1
@@ -569,7 +570,7 @@ struct FNTT
 
     $k$ 和 $g$\footnote{$g$ 为 $p$ 的原根。} 均对实现没有影响。
     $t$ 决定了能够解决的问题的最大规模。
-    
+
     \bigskip
     \begin{center}
         \setlength{\tabcolsep}{10mm}
