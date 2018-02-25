@@ -18,26 +18,33 @@ pdfauthor={Orange}
 \author{Orange}
 \date{\today}
 
+
 \begin{document}
 	\heiti
 	%\maketitle
 
-	\section{GCD 1 \small(gcd1.cpp / gcd1.in / gcd1.out) TL: 1 s / ML: 256 MiB}
+	\section{GCD 2 \small(gcd2.cpp / gcd2.in / gcd2.out) TL: 2 s / ML: 256 MiB}
 	\subsection{问题描述}
-	给定一个正整数 $n$，
-	求 $1 \le x, y \le n$ 且 $\gcd(x, y)$ 为素数的数对 $(x, y)$ 有多少对。
+	给定两个正整数 $n$ 和 $m$，
+	求 $1 \le x \le n$，$1 \le y \le m$ 且 $\gcd(x, y)$ 为素数的数对 $(x, y)$ 有多少对。
 
 	可以注意到，答案在 long long 范围内。
 
 	\subsection{输入}
-	输入包含一行一个正整数 $n$。
+	\textbf{本题包含多组测试数据。}
+
+	首先输入一行一个正整数 $T$ 代表测试组数。
+
+	接下来 $T$ 行，每行两个正整数 $n$ 和 $m$。
 
 	\subsection{输出}
-	输出包含一行一个正整数，代表答案。
+	输出包含 $T$ 行，每行一个正整数，代表答案。
 
 	\subsection{样例}
 	\subsubsection{输入}
-	4
+	1
+
+	4 4
 
 	\subsubsection{输出}
 	4
@@ -47,6 +54,8 @@ pdfauthor={Orange}
 	$(2, 2)$，$(2, 4)$，$(3, 3)$，$(4,2)$。
 
 	\subsection{数据规模与约定}
-	对于 $100\%$ 的数据，$n \le 10^7$。
+	对于 $50\%$ 的数据，$T = 1$。
+	
+	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$。
 
 \end{document}
