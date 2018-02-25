@@ -22,39 +22,44 @@ pdfauthor={Orange}
 	\heiti
 	%\maketitle
 
-	\section{GCD 2 \small(gcd2.cpp / gcd2.in / gcd2.out) TL: 2 s / ML: 256 MiB}
+	\section{GCD 3 \small(gcd3.cpp / gcd3.in / gcd3.out) TL: 1 s / ML: 256 MiB}
 	\subsection{问题描述}
-	给定两个正整数 $n$ 和 $m$，
-	求 $1 \le x \le n$，$1 \le y \le m$ 且 $\gcd(x, y)$ 为素数的数对 $(x, y)$ 有多少对。
+	给定三个正整数 $n$，$m$ 和 $k$，
+	求 $1 \le x \le n$，$1 \le y \le m$ 且 $\gcd(x, y) = k$ 的\textbf{无序}数对 $(x, y)$ 有多少对。
 
 	可以注意到，答案在 long long 范围内。
 
 	\subsection{输入}
-	\textbf{本题包含多组测试数据。}
+	本题包含多组测试数据。
 
 	首先输入一行一个正整数 $T$ 代表测试组数。
 
-	接下来 $T$ 行，每行两个正整数 $n$ 和 $m$。
+	接下来 $T$ 行，每行三个正整数 $n$，$m$ 和 $k$。
 
 	\subsection{输出}
 	输出包含 $T$ 行，每行一个正整数，代表答案。
 
 	\subsection{样例}
 	\subsubsection{输入}
-	1
+	2
 
-	4 4
+	3 5 1
+
+	11014 14409 9
 
 	\subsubsection{输出}
-	4
+	9
+
+	736427
 
 	\subsubsection{解释}
-	有四个数对：
-	$(2, 2)$，$(2, 4)$，$(3, 3)$，$(4,2)$。
+	第一组数据中有 9 对：
+	$(1, 1)$，$(1, 2)$，$(1, 3)$，$(1, 4)$，
+	$(1, 5)$，$(2, 3)$，$(2, 5)$，$(3, 4)$，$(3, 5)$。
 
 	\subsection{数据规模与约定}
-	对于 $50\%$ 的数据，$T = 1$。
+	对于 $50\%$ 的数据，$n, m \le 10^5$。
 
-	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$。
+	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$，数据保证随机。
 
 \end{document}
