@@ -1,0 +1,63 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+pdfauthor={Orange}
+}
+
+\title{标题}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 4 \small(gcd4.cpp / gcd4.in / gcd4.out) TL: 1 s / ML: 256 MiB}
+	\subsection{问题描述}
+	给定两个正整数 $n$，$m$，
+	求：
+	$$
+	\sum_{x = 1}^{n} \sum_{y = 1}^{m} \gcd(x, y)
+	$$
+
+	答案对 $998244353$ 取模。
+
+	\subsection{输入}
+	本题包含多组测试数据。
+
+	首先输入一行一个正整数 $T$ 代表测试组数。
+
+	接下来 $T$ 行，每行两个正整数 $n$ 和 $m$。
+
+	\subsection{输出}
+	输出包含 $T$ 行，每行一个正整数，代表答案。
+
+	\subsection{样例}
+	\subsubsection{输入}
+	2
+
+	3 4
+
+	233 666
+
+	\subsubsection{输出}
+	16
+
+	570808
+
+	\subsection{数据规模与约定}
+	对于 $30\%$ 的数据，$n, m \le 10^3$，$T = 1$。
+
+	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$，数据保证随机。
+
+\end{document}
