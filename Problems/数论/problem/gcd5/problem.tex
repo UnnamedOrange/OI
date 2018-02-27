@@ -22,15 +22,18 @@
 	\heiti
 	%\maketitle
 
-	\section{GCD 2 \small(gcd2.cpp / gcd2.in / gcd2.out) TL: 2 s / ML: 256 MiB}
+	\section{GCD 5 \small(gcd5.cpp / gcd5.in / gcd5.out) TL: 1 s / ML: 256 MiB}
 	\subsection{问题描述}
-	给定两个正整数 $n$ 和 $m$，
-	求 $1 \le x \le n$，$1 \le y \le m$ 且 $\gcd(x, y)$ 为素数的数对 $(x, y)$ 有多少对。
+	给定两个正整数 $n$，$m$，
+	求：
+	$$
+	\sum_{x = 1}^{n} \sum_{y = 1}^{m} \mathrm{lcm}(x, y)
+	$$
 
-	可以注意到，答案在 long long 范围内。
+	答案对 $998244353$ 取模。
 
 	\subsection{输入}
-	\textbf{本题包含多组测试数据。}
+	本题包含多组测试数据。
 
 	首先输入一行一个正整数 $T$ 代表测试组数。
 
@@ -41,20 +44,22 @@
 
 	\subsection{样例}
 	\subsubsection{输入}
-	1
+	2
 
-	4 4
+	3 4
+
+	233 666
 
 	\subsubsection{输出}
-	4
+	48
 
-	\subsubsection{解释}
-	有四个数对：
-	$(2, 2)$，$(2, 4)$，$(3, 3)$，$(4,2)$。
+	435776005
 
 	\subsection{数据规模与约定}
-	对于 $50\%$ 的数据，$T = 1$。
+	对于 $30\%$ 的数据，$n, m \le 10^3$，$T = 1$。
 
-	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$。
+	对于 $60\%$ 的数据，$T = 1$。
+
+	对于 $100\%$ 的数据，$n, m \le 10^7$，$T \le 10^3$，数据保证随机。
 
 \end{document}

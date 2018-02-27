@@ -1,0 +1,118 @@
+\documentclass[12pt, UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮 
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Solution}
+\author{Orange}
+\date{\today}
+
+\newcommand{\floorfrac}[2]{\left\lfloor \frac {#1} {#2} \right\rfloor}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 5}
+
+	\subsection{60 分做法}
+
+	\begin{align*}
+		& \sum_{x = 1}^{n} \sum_{y = 1}^{m} \mathrm{lcm}(x, y)
+		\\
+		=& \sum_{x = 1}^{n} \sum_{y = 1}^{m} \frac {xy} {\gcd(x, y)}
+		\\
+		=& \sum_{g = 1}
+		\frac {1} {g}
+		\sum_{x = 1}^{\floorfrac {n} {g}}
+		\sum_{y = 1}^{\floorfrac {m} {g}}
+		[\gcd(x, y) = 1]
+		(xg)(yg)
+		\\
+		=& \sum_{g = 1} g
+		\sum_{x = 1}^{\floorfrac {n} {g}}
+		\sum_{y = 1}^{\floorfrac {m} {g}}
+		xy
+		\sum_{d \mid \gcd(x, y)} \mu(d)
+		\\
+		=& \sum_{g = 1} g
+		\sum_{d = 1} \mu(d)
+		\sum_{x = 1}^{\floorfrac {n} {gd}}
+		\sum_{y = 1}^{\floorfrac {m} {gd}}
+		(xd)(yd)
+		\\
+		=& \sum_{g = 1} g
+		\sum_{d = 1} d^2 \mu(d)
+		\sum_{x = 1}^{\floorfrac {n} {gd}}
+		\sum_{y = 1}^{\floorfrac {m} {gd}}
+		xy
+		\\
+		=& \sum_{g = 1} g
+		\sum_{d = 1} d^2 \mu(d)
+		(\sum_{x = 1}^{\floorfrac {n} {gd}} x)
+		(\sum_{y = 1}^{\floorfrac {m} {gd}} y)
+		\\
+		=& \frac {1} {4}
+		\sum_{g = 1} g
+		\sum_{d = 1} d^2 \mu(d)
+		\floorfrac {n} {gd}
+		(\floorfrac {n} {gd} + 1)
+		\floorfrac {m} {gd}
+		(\floorfrac {m} {gd} + 1)
+	\end{align*}
+
+	可以知道：
+	$$
+	F(n) = n^2 \mu(n)
+	$$
+	是积性函数，预处理后加上分块能够得到 60 分。
+
+	\subsection{100 分做法}
+
+	\bigskip
+	继续化简：
+	\begin{align*}
+		=& \frac {1} {4}
+		\sum_{t = 1}
+		\floorfrac {n} {t}
+		(\floorfrac {n} {t} + 1)
+		\floorfrac {m} {t}
+		(\floorfrac {m} {t} + 1)
+		\sum_{g \mid t}
+		g \cdot (\frac {t} {g})^2 \mu(\frac {t} {g})
+	\end{align*}
+	
+	右边的和式是一个狄利克雷卷积的形式，且原函数均为积性函数，
+	所以可以使用欧拉筛。
+
+	设：
+	$$
+	G(n) = \sum_{d \mid n} d \cdot (\frac {n} {d})^2 \mu(\frac {n} {d}) 
+	$$
+
+	可以知道：
+	$$
+	G(n) = 1
+	$$
+	$$
+	G(p) = p - p^2
+	$$
+	$$
+	G(p^k) = p^k - p^{k + 1}
+	$$
+	$$
+	G(p^{k + 1}) = pG(p^k)
+	$$
+
+\end{document}
