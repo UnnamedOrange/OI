@@ -1,0 +1,67 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{标题}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 7 \small(gcd7.cpp / gcd7.in / gcd7.out) TL: 2 s / ML: 256 MiB}
+	\subsection{问题描述}
+	给定两个正整数 $n$，$m$
+	求：
+	$$
+	\sum_{x = 1}^{n} \sum_{y = 1}^{m} d(xy)
+	$$
+
+	其中 $d$ 表示正因子个数。
+
+	\subsection{输入}
+	本题包含多组测试数据。
+
+	首先输入一行一个正整数 $T$ 代表测试组数。
+
+	接下来 $T$ 行，每行一个正整数 $n$。
+
+	\subsection{输出}
+	输出包含 $T$ 行，每行一个正整数，代表答案。
+
+	\subsection{样例}
+	\subsubsection{输入}
+	2
+
+	7 4
+
+	5 6
+
+	\subsubsection{输出}
+	110
+
+	121
+
+	\subsection{数据规模与约定}
+	对于 $20\%$ 的数据，$n, m \le 10^2$，$T = 5 \times 10^4$
+
+	对于另外 $30\%$ 的数据，$n, m \le 10^3$，$T = 10$。
+
+	对于另外 $20\%$ 的数据，$T = 10$。
+
+	对于 $100\%$ 的数据，$n, m \le 5 \times 10^4$，$T = 5 \times 10^4$。
+
+\end{document}

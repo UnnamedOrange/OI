@@ -1,0 +1,141 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Solution}
+\author{Orange}
+\date{\today}
+
+\newcommand{\floorfrac}[2]{\left\lfloor \frac {#1} {#2} \right\rfloor}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 7}
+
+	\subsection{第一步}
+
+	\begin{align*}&
+		\sum_{x = 1}^{n} \sum_{y = 1}^{m} d(xy)
+		\\=&
+		\sum_{x = 1}^{n} \sum_{y = 1}^{m}
+		\sum_{i \mid x} \sum_{j \mid y} [\gcd(i, j) = 1]
+	\end{align*}
+
+	\leftline {证明：}
+
+	设
+	$$
+	xy =
+	p_{1}^{r_{x_1} + r_{y_1}} \times
+	p_{2}^{r_{x_2} + r_{y_2}} \times
+	\cdots \times
+	p_{k}^{r_{x_k} + r_{y_k}}
+	$$
+
+	有：
+	$$
+	d(xy) =
+	(r_{x_1} + r_{y_1} + 1) \times
+	(r_{x_2} + r_{y_2} + 1) \times
+	\cdots \times
+	(r_{x_k} + r_{y_k} + 1)
+	$$
+
+	若要有 $\gcd(x, y) = 1$，则对于某个质因数 $p_i$，
+	必有 $r_{x_i} = 0$ 或 $r_{y_i} = 0$，或两者同时满足。
+	依次考虑每个质因数：若 $r_{x_i} \ne 0$，则有 $r_{x_i}$ 种情况；
+	若 $r_{y_i} \ne 0$，则有 $r_{y_i}$ 种情况；
+	都为 $0$ 时只有一种情况。
+	当我们使用乘法原理将各情况合并起来时，
+	原命题得证。
+
+	\bigskip
+	为什么会想到这一步转换，我也不知道。考虑到这道题的重点还是莫比乌斯反演，
+	所以就暂时不要纠结为什么第一步会想到这个了。
+
+	\subsection{第二步}
+
+	\begin{align*}&
+		\sum_{x = 1}^{n} \sum_{y = 1}^{m}
+		\sum_{i \mid x} \sum_{j \mid y} [\gcd(i, j) = 1]
+		\\=&
+		\sum_{x = 1}^{n} \sum_{y = 1}^{m}
+		\sum_{i \mid x} \sum_{j \mid y}
+		\sum_{d \mid \gcd(i, j)} \mu(d)
+	\end{align*}
+
+	众所周知，$d \mid \gcd(i, j)$ 等价于 $d \mid i$ 且 $d \mid j$。
+
+	\begin{align*}=&
+		\sum_{d = 1} \mu(d)
+		\sum_{i = 1}^{\floorfrac nd}
+		\sum_{j = 1}^{\floorfrac md}
+		\sum_{x = 1, i \mid x}^{\floorfrac nd}
+		\sum_{y = 1, j \mid y}^{\floorfrac md}
+		1
+	\end{align*}
+
+	上一步的意思是，在最外面枚举 $d$，然后从内到外考虑贡献。
+	考虑贡献时，首先考虑 $i$ 和 $j$，再结合 $i$ 和 $j$ 考虑 $x$ 和 $y$。
+
+	\begin{align*}=&
+		\sum_{d = 1} \mu(d)
+		\sum_{i = 1}^{\floorfrac nd}
+		\sum_{j = 1}^{\floorfrac md}
+		\sum_{x = 1}^{\floorfrac n {id}}
+		\sum_{y = 1}^{\floorfrac m {jd}}
+		1
+		\\=&
+		\sum_{d = 1} \mu(d)
+		\sum_{i = 1}^{\floorfrac nd}
+		\sum_{j = 1}^{\floorfrac md}
+		\left(
+		\left( \sum_{x = 1}^{\floorfrac n {id}} 1 \right)
+		\left( \sum_{y = 1}^{\floorfrac m {jd}} 1 \right)
+		\right)
+		\\=&
+		\sum_{d = 1} \mu(d)
+		\left(
+		\sum_{i = 1}^{\floorfrac nd}
+		\sum_{x = 1}^{\floorfrac n {id}} 1
+		\right)
+		\left(
+		\sum_{j = 1}^{\floorfrac md}
+		\sum_{y = 1}^{\floorfrac m {jd}} 1
+		\right)
+	\end{align*}
+
+	以上变换可以有一般性的证明。
+
+	$$
+	= \sum_{d = 1} \mu(d)
+	\left(
+	\sum_{i = 1}^{\floorfrac nd} \floorfrac {\floorfrac n d} i
+	\right)
+	\left(
+	\sum_{j = 1}^{\floorfrac md} \floorfrac {\floorfrac m d} i
+	\right)
+	$$
+
+	\bigskip
+	用 $O(n \sqrt n)$ 的时间复杂度内预处理
+	$$
+	\sum_{i = 1}^{n} \frac {n} {i}
+	$$
+
+	单次查询的时间复杂度为 $O(\sqrt n)$。
+\end{document}
