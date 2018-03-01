@@ -98,7 +98,7 @@ struct case1 : private CaseBase
 		int n = ((idx <= 3) ? 1e3 : 1e7);
 		printf("%d\n", T);
 		while (T--)
-			printf("%d %d\n", rand(1, n), rand(1, n));
+			printf("%d\n", rand(1, n));
 	}
 };
 

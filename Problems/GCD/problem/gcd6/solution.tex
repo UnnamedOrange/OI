@@ -1,0 +1,136 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Solution}
+\author{Orange}
+\date{\today}
+
+\newcommand{\floorfrac}[2]{\left\lfloor \frac {#1} {#2} \right\rfloor}
+
+\begin{document}
+	\heiti
+	%\maketitle
+
+	\section{GCD 6}
+
+	\subsection{第一步}
+
+	$$
+	\sum_{x = 1}^{n} \sum_{y = 1}^{n} \mathrm{lcm}(x, y)
+	$$
+
+	设 $f(n) = \sum_{i = 1}^{n} \mathrm{lcm}(i, n)$，则原答案为：
+	$$
+	\sum_{i = 1}^{n} (2f(i) - i)
+	$$
+
+	\subsection{第二步}
+
+	\begin{align*}
+		f(n) =&
+		\sum_{x = 1}^{n} \mathrm{lcm}(x, n)
+		\\=&
+		\sum_{x = 1}^{n} \frac {xn} {\gcd(x, n)}
+		\\=&
+		n
+		\sum_{g \mid n} \frac {1} {g}
+		\sum_{x = 1}^{\frac {n} {g}} [\gcd(x, \frac {n} {g}) = 1] (xg)
+		\\=&
+		n
+		\sum_{g \mid n}
+		\sum_{x = 1}^{\frac {n} {g}} [\gcd(x, \frac {n} {g}) = 1] x
+	\end{align*}
+
+	等价于：
+	$$
+	= n
+	\sum_{g \mid n}
+	\sum_{x = 1}^{g} [\gcd(x, g) = 1] x
+	$$
+
+	如何计算？既然能够想到 $\frac {n} {g}$ 等价于 $g$，
+	那也应该不难想到若 $\gcd(x, g) = 1(x < g)$，则 $\gcd(g - x, g) = 1$。
+	不难发现其否命题也成立。我们将 $x$ 与 $g - x$ 合起来处理，则有：
+	$$
+	\sum_{x = 1}^{g} [\gcd(x, g) = 1] x
+	= \frac {1} {2} g \cdot \varphi(g)
+	$$
+
+	特别地，当 $g = 1$ 时，上式为 $1$。
+	所以我们只需要算出：
+	$$
+	h(n) = \sum_{g \mid n} g \cdot \varphi(g)
+	$$
+	即可。
+
+	即：
+
+	$$
+	(\mathrm {id} \cdot \varphi) * 1
+	$$
+
+	根据积性函数的乘积是积性函数，积性函数的卷积是积性函数，
+	我们便知道了 $h$ 可以使用线性筛预处理。
+
+	\bigskip
+	我们有：
+	$$
+	h(1) = 1
+	$$
+	$$
+	h(p) = p \cdot (p - 1) + 1
+	$$
+	$$
+	h(p^k) = (p + p^3 + p^5 + \cdots + p^{2k - 1})(p - 1) + 1
+	$$
+
+	如果直接递推，会很复杂，时间复杂度也难以得到保证，所以考虑继续化简：
+	\begin{align*}
+	h(p^k) =& (p + p^3 + p^5 + \cdots + p^{2k - 1})(p - 1) + 1
+	\\=&
+	\frac {p^{2k + 1} + 1} {p + 1}
+	\end{align*}
+
+	可以知道：
+	\begin{align*}
+	h(p^{k + 1}) =& \frac {p^{2k + 3} + p^2 - p^2 + 1} {p + 1}
+	\\=&
+	h(p^k) \cdot p^2 - (p - 1)
+	\end{align*}
+
+	这样，通过维护最小因子出现次数，
+	便能在 $O(1)$ 的时间复杂度内递推出 $h(p^{k + 1})$。
+
+	\subsection{具体实现}
+
+	一步一步代回：
+	\begin{align*}&
+		2f(n) - n
+		\\=&
+		2(\frac {1} {2} n \cdot (h(n) + 1)) - n
+	\end{align*}
+
+	加 1 是为了统一 $h(1) = 1$ 的情况。
+
+	\begin{align*}
+		=&
+		n \cdot (h(n) + 1) - n
+		\\=&
+		n \cdot h(n)
+	\end{align*}
+
+	这样问题就很简单了。
+\end{document}
