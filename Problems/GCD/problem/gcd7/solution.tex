@@ -67,6 +67,43 @@
 	为什么会想到这一步转换，我也不知道。考虑到这道题的重点还是莫比乌斯反演，
 	所以就暂时不要纠结为什么第一步会想到这个了。
 
+	\bigskip\bigskip\bigskip
+	\leftline{更新：想到的原因}
+
+	设 $x = p_1^{x_1} p_2^{x_2} \cdots p_k^{x_k}$，
+	$y = p_1^{y_1} p_2^{y_2} \cdots p_k^{y_k}$。
+
+	令 $d_1 = p_1^{z_{11}} p_2^{z_{12}} \cdots p_k^{z_{1k}}$，
+	$d_2 = p_1^{z_{21}} p_2^{z_{22}} \cdots p_k^{z_{2k}}$，
+	当 $z_{1i} + z_{2i} < x_i$ 时，我们强制让 $z_{2i} = 0$；
+	当 $x_i \le z_{1i} + z_{2i} \le x_i + y_i$ 时，
+	我们强制让 $z_{1i} = x_i$。
+	则 $xy$ 的所有因数都可以使用 $d_1 d_2$ 不重不漏地表示出来，一一对应。
+	
+	\bigskip
+	由定义必有：
+	\begin{gather*}
+		d_1 \mid x
+		\\
+		d_2 \mid y
+	\end{gather*}
+	
+	同时可知：
+	$$
+	\gcd(\frac {x} {d_1} , d_2) = 1
+	$$
+	否则不符合我们的定义。
+
+	则 $xy$ 的因数个数与以下情况一一对应：
+	$$
+	\sum_{\frac {x} {d_1} \mid x} \sum_{d_2 \mid y} [\gcd(\frac {x} {d_1}, d_2) = 1]
+	$$
+
+	即：
+	$$
+	\sum_{i \mid x} \sum_{j \mid y} [\gcd(i, j) = 1]
+	$$
+
 	\subsection{第二步}
 
 	\begin{align*}&
