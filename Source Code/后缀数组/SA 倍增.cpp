@@ -70,10 +70,10 @@ char str[maxn];
 int buf_size = 128;
 int buf[maxn];
 int SA[maxn]; // SA: 第 i 大的是谁，rank: i 是第几大；rank 的 rank 是 SA
-int tempx[maxn], tempy[maxn];
+int x[maxn], y[maxn];
 void GetSA()
 {
-	int *rank = tempx, *SA_second = tempy;
+	int *rank = x, *SA_second = y;
 
 	for (int i = 0; i < n; i++)
 		rank[i] = str[i];
@@ -82,8 +82,7 @@ void GetSA()
 	for (int i = 0; i < n; i++) buf[rank[i]]++;
 	for (int i = 1; i < buf_size; i++) buf[i] += buf[i - 1];
 	for (int i = n - 1; ~i; i--)
-		SA[--buf[rank[i]]] = i; // rank of rank = SA
-	// 离散：(SA[--buf[rank[i]]] = rank[i])：rank[i]->i
+		SA[--buf[rank[i]]] = i; // 离散：(SA[--buf[rank[i]]] = rank[i])：rank[i]->i
 
 	for (int k = 1; k <= n; k <<= 1)
 	{
@@ -106,7 +105,9 @@ void GetSA()
 		t = 1;
 		rank[SA[0]] = 0;
 		for (int i = 1; i < n; i++)
-			rank[SA[i]] = (preRank[SA[i - 1]] == preRank[SA[i]] && preRank[SA[i - 1] + k] == preRank[SA[i] + k]) ? t - 1 : t++;
+			rank[SA[i]] = (preRank[SA[i - 1]] == preRank[SA[i]] &&
+				SA[i - 1] + k < n && SA[i] + k < n && // note
+				preRank[SA[i - 1] + k] == preRank[SA[i] + k]) ? t - 1 : t++;
 		if (t >= n) break;
 		buf_size = t;
 	}
