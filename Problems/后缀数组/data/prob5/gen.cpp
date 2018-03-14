@@ -97,11 +97,22 @@ struct case1 : private CaseBase
 		printOut(g_idx == 1 ? 1 : rand(1, n / 50));
 	}
 };
+struct case2 : private CaseBase
+{
+	case2()
+	{
+		int n = int(2e5);
+		for (int i = 0; i < n; i++) putchar('a');
+		putchar('\n');
+		printOut(2);
+	}
+};
 
 void run()
 {
 	GoCase(case1, 6);
-	GoCase(case1, 14, int(2e5));
+	GoCase(case1, 13, int(2e5));
+	GoCase(case2, 1);
 }
 
 int main()
