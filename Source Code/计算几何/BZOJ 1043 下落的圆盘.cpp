@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <cassert>
+#include <cctype>
+#include <climits>
+#include <ctime>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -13,52 +17,33 @@
 #include <set>
 #include <bitset>
 #include <list>
-typedef int INT;
+#include <functional>
+typedef long long LL;
+typedef unsigned long long ULL;
 using std::cin;
 using std::cout;
 using std::endl;
-INT readIn()
+typedef int INT_PUT;
+INT_PUT readIn()
 {
-	INT a = 0;
-	bool minus = false;
+	INT_PUT a = 0; bool positive = true;
 	char ch = getchar();
-	while (!(ch == '-' || (ch >= '0' && ch <= '9'))) ch = getchar();
-	if (ch == '-')
-	{
-		minus = true;
-		ch = getchar();
-	}
-	while (ch >= '0' && ch <= '9')
-	{
-		a = a * 10 + (ch - '0');
-		ch = getchar();
-	}
-	if (minus) a = -a;
-	return a;
+	while (!(ch == '-' || std::isdigit(ch))) ch = getchar();
+	if (ch == '-') { positive = false; ch = getchar(); }
+	while (std::isdigit(ch)) { a = a * 10 - (ch - '0'); ch = getchar(); }
+	return positive ? -a : a;
 }
-void printOut(INT x)
+void printOut(INT_PUT x)
 {
-	char buffer[20];
-	INT length = 0;
-	if (x < 0)
-	{
-		putchar('-');
-		x = -x;
-	}
-	do
-	{
-		buffer[length++] = x % 10 + '0';
-		x /= 10;
-	} while (x);
-	do
-	{
-		putchar(buffer[--length]);
-	} while (length);
+	char buffer[20]; int length = 0;
+	if (x < 0) putchar('-'); else x = -x;
+	do buffer[length++] = -(x % 10) + '0'; while (x /= 10);
+	do putchar(buffer[--length]); while (length);
 }
 
 const double PI = std::acos((double)-1);
-const INT maxn = 1005;
-INT n;
+const int maxn = 1005;
+int n;
 
 const double EPS = 1e-8;
 int dcmp(const double& x)
@@ -67,12 +52,12 @@ int dcmp(const double& x)
 		return 0;
 	return x < 0 ? -1 : 1;
 }
-#define DefinePoint(name)	\
-struct name			\
-{					\
-	double x, y;	\
-	name() {}		\
-	name(const double& x, const double& y) : x(x), y(y) {}	\
+#define DefinePoint(name)										\
+struct name														\
+{																\
+	double x, y;												\
+	name() {}													\
+	name(const double& x, const double& y) : x(x), y(y) {}		\
 };
 DefinePoint(Point);
 DefinePoint(Vector);
@@ -118,9 +103,17 @@ enum
 int GetCirclesRelation(const Circle& a, const Circle& b)
 {
 	double d = Length(a.p - b.p);
-	if (dcmp(a.r - b.r) <= 0)
+	if (dcmp(a.r - b.r) < 0)
 	{
 		if (dcmp(d - (b.r - a.r)) <= 0)
+			return COVERED;
+		else if (dcmp(d - (a.r + b.r)) >= 0)
+			return INVALID;
+		return VALID;
+	}
+	else if (dcmp(a.r - b.r) == 0)
+	{
+		if (dcmp(d) == 0)
 			return COVERED;
 		else if (dcmp(d - (a.r + b.r)) >= 0)
 			return INVALID;
@@ -144,7 +137,7 @@ void GetCirclesIntersection(const Circle& a, const Circle& b, std::vector<Event>
 	double base = std::atan2(aTob.y, aTob.x);
 	if (dcmp(base - angle + PI) <= 0)
 	{
-		events.push_back(Event(base - angle + PI, true));
+		events.push_back(Event(base - angle + 2 * PI, true));
 		events.push_back(Event(PI, false));
 		events.push_back(Event(-PI, true));
 	}
@@ -156,7 +149,7 @@ void GetCirclesIntersection(const Circle& a, const Circle& b, std::vector<Event>
 	{
 		events.push_back(Event(PI, false));
 		events.push_back(Event(-PI, true));
-		events.push_back(Event(base + angle - PI, false));
+		events.push_back(Event(base + angle - 2 * PI, false));
 	}
 	else
 	{
@@ -198,7 +191,7 @@ void run()
 		std::sort(events.begin(), events.end());
 		double accum = 0;
 		double pre;
-		INT count_ = 0;
+		int count_ = 0;
 		for (int j = 0; j < events.size(); j++)
 		{
 			if (count_) accum += events[j].pos - pre;
@@ -215,6 +208,9 @@ void run()
 
 int main()
 {
+#ifndef LOCAL
+
+#endif
 	run();
 	return 0;
 }
