@@ -1,6 +1,6 @@
 [TOC]
 
-# Aho-Corasick Automation
+# Aho-Corasick Automaton
 
 （粗体为重点内容）
 
@@ -73,7 +73,7 @@ struct Node
 ##### 4. 参考代码
 
 ```c++
-struct ACAutomation
+struct ACAutomaton
 {
 	static const int alphabet = 26;
 	static inline int code(char ch)
@@ -111,12 +111,12 @@ struct ACAutomation
 	static Pool pool;
 
 	Node* root;
-	ACAutomation()
+	ACAutomaton()
 	{
 		isInitialized = false;
 		root = pool.alloc();
 	}
-	~ACAutomation()
+	~ACAutomaton()
 	{
 		clear(root);
 	}
@@ -129,7 +129,7 @@ struct ACAutomation
 	void reset()
 	{
 		clear(root);
-		new(this) ACAutomation;
+		new(this) ACAutomaton;
 	}
 
 	bool isInitialized;
@@ -187,7 +187,7 @@ struct ACAutomation
 		return ret;
 	}
 };
-ACAutomation::Pool ACAutomation::pool;
+ACAutomaton::Pool ACAutomaton::pool;
 ```
 
 ## Trie 图
@@ -228,7 +228,7 @@ cnt = cnt->c[c]; // 直接走
 ##### 3. 参考代码
 
 ```c++
-struct ACAutomation
+struct ACAutomaton
 {
 	static const int alphabet = 26;
 	static inline int code(char ch)
@@ -272,7 +272,7 @@ struct ACAutomation
 	static Pool pool;
 
 	Node* root;
-	ACAutomation()
+	ACAutomaton()
 	{
 		isInitialized = false;
 		root = pool.alloc();
@@ -280,7 +280,7 @@ struct ACAutomation
 	void reset()
 	{
 		pool.reset(); // 需要改造内存池
-		new(this) ACAutomation;
+		new(this) ACAutomaton;
 	}
 
 	bool isInitialized;
@@ -340,6 +340,6 @@ struct ACAutomation
 		return ret;
 	}
 };
-ACAutomation::Pool ACAutomation::pool;
+ACAutomaton::Pool ACAutomaton::pool;
 ```
 
