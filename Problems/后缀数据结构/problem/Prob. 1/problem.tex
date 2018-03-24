@@ -14,24 +14,27 @@
 	pdfauthor={Orange}
 }
 
-\title{Prob. 3}
+\title{Prob. 1}
 \author{Orange}
 \date{\today}
 
 \begin{document}
 	\heiti
 
-	\section{Prob. 3 \small {prob3.cpp / prob3.in / prob3.out} TL: 3s ML: 1024 MiB}
+	\section{Prob. 1 \small {prob1.cpp / prob1.in / prob1.out} TL: 1s ML: 512 MiB}
 
 	\subsection{问题描述}
 
 	给你一个仅由小写字母组成的非空字符串 $s$，
-	希望你能求出它所有本质不同的子串的总长度。
-	答案对 $2^{64}$ 取模。
+	希望你能求出它有多少个出现次数恰好等于 $k$ 次的子串。
 
 	\subsection{输入}
 
-	输入包含一行一个由小写字母组成的字符串 $s$。
+	输入包含两行。
+
+	第一行输入一行一个由小写字母组成的字符串 $s$。
+
+	第二行输入一行一个正整数 $k$。
 
 	\subsection{输出}
 
@@ -43,14 +46,20 @@
 
 	ababaab
 
+	3
+
 	\subsubsection{输出}
 
-	70
+	2
+
+	\subsubsection{解释}
+
+	子串 ``b''，``ab'' 恰好出现了 3 次。
 
 	\subsection{数据规模与约定}
 
 	对于 $30\%$ 的数据，$|S| \le 10^3$。
 
-	对于 $100\%$ 的数据，$|S| \le 3 \times 10^6$。
+	对于 $100\%$ 的数据，$|S| \le 2 \times 10^5$，$1 \le k \le |S|$。
 
 \end{document}

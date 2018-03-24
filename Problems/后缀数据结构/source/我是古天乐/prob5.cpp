@@ -23,7 +23,7 @@ typedef unsigned long long ULL;
 using std::cin;
 using std::cout;
 using std::endl;
-typedef long long INT_PUT;
+typedef int INT_PUT;
 INT_PUT readIn()
 {
 	INT_PUT a = 0; bool positive = true;
@@ -41,79 +41,63 @@ void printOut(INT_PUT x)
 	do putchar(buffer[--length]); while (length);
 }
 
-const int maxn = int(3e6) + 5;
-int n;
+const int maxn = int(2e5) + 5;
+int n, k;
 char str[maxn];
 
 class SAM
 {
 	static const int alphabet = 26;
-	static int code(char ch) { return ch - 'a'; }
+	static inline int code(char ch) { return ch - 'a'; }
 	struct Node
 	{
 		int len;
 		int link;
 		int next[alphabet];
 	} nodes[maxn * 2];
-	int size;
-	int last;
-
-	LL f[maxn * 2];
-	int topo[maxn * 2];
-	int buf[maxn * 2];
-	int sort[maxn * 2];
+	int last, size;
 
 public:
-	SAM() : nodes(), size(), last()
-	{
-		nodes[last = size++].link = -1;
-	}
+	SAM() { nodes[last = size++].link = -1; }
 	void extend(char ch)
 	{
 		int x = code(ch);
 		int cur = size++;
-		nodes[cur].len = nodes[last].len + 1;
 		int p = last;
 		last = cur;
-		for (; ~p && !nodes[p].next[x]; p = nodes[p].link)
-			nodes[p].next[x] = cur;
-		if (!~p)
-		{
-			nodes[cur].link = 0;
-			return;
-		}
+		g[cur] = 1;
+
+		nodes[cur].len = nodes[p].len + 1;
+		for (; ~p && !nodes[p].next[x]; p = nodes[p].link) nodes[p].next[x] = cur;
+		if (!~p) return void(nodes[cur].link = 0);
 		int q = nodes[p].next[x];
-		if (nodes[p].len + 1 == nodes[q].len)
-		{
-			nodes[cur].link = q;
-			return;
-		}
+		if (nodes[p].len + 1 == nodes[q].len) return void(nodes[cur].link = q);
 		int clone = size++;
 		nodes[clone] = nodes[q];
 		nodes[clone].len = nodes[p].len + 1;
 		nodes[cur].link = nodes[q].link = clone;
-		for (; ~p && nodes[p].next[x] == q; p = nodes[p].link)
-			nodes[p].next[x] = clone;
+		for (; ~p && nodes[p].next[x] == q; p = nodes[p].link) nodes[p].next[x] = clone;
 	}
 
-	void radixSort()
+private:
+	int buf[maxn * 2];
+	int sort[maxn * 2];
+	int g[maxn * 2];
+public:
+	LL calc()
 	{
-		for (int i = 0; i < size; i++) buf[i] = 0;
 		for (int i = 0; i < size; i++) buf[nodes[i].len]++;
 		for (int i = 1; i < size; i++) buf[i] += buf[i - 1];
 		for (int i = size - 1; ~i; i--) sort[--buf[nodes[i].len]] = i;
-	}
-	LL DP()
-	{
-		for (int i = size - 1; ~i; i--)
+		LL ans = 0;
+		for (int i = size - 1; i; i--)
 		{
 			int node = sort[i];
-			f[node] = bool(i);
-			for (int j = 0; j < alphabet; j++)
-				if (int t = nodes[node].next[j])
-					f[node] += f[t];
+			int q;
+			g[q = nodes[node].link] += g[node];
+			if (g[node] >= k) ans += nodes[node].len - nodes[q].len;
 		}
-		return f[0];
+		return ans;
 	}
 } sam;
 
@@ -121,17 +105,17 @@ void run()
 {
 	scanf("%s", str);
 	n = strlen(str);
+	k = readIn();
 	for (int i = 0; i < n; i++)
 		sam.extend(str[i]);
-	sam.radixSort();
-	printOut(sam.DP());
+	printOut(sam.calc());
 }
 
 int main()
 {
 #ifndef LOCAL
-	freopen("prob2.in", "r", stdin);
-	freopen("prob2.out", "w", stdout);
+	freopen("prob5.in", "r", stdin);
+	freopen("prob5.out", "w", stdout);
 #endif
 	run();
 	return 0;
