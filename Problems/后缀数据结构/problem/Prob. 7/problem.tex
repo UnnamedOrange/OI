@@ -1,0 +1,72 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref} %用于设置 PDF 的信息
+\usepackage{setspace} %用于设置行间距
+\usepackage{listings} %用于代码高亮
+\usepackage{xcolor} %用于处理颜色
+\usepackage{ulem} %用于各种线
+\usepackage{amsmath} %用于数学公式（如 \begin{align}）
+\usepackage{booktabs} %用于表格画线
+\usepackage{graphicx} %用于插入图片
+\usepackage[top = 1.0in, bottom = 1.0in, left = 1.0in, right = 1.0in]{geometry} %设置页边距
+
+\hypersetup{
+	pdfauthor={Orange}
+}
+
+\title{Prob. 3}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+	\heiti
+
+	\section{Prob. 7 \small {prob7.cpp / prob7.in / prob7.out} TL: 1s ML: 1024 MiB}
+
+	\subsection{问题描述}
+
+	给你一个仅由小写字母组成的非空字符串 $s$，
+	已知它是由字符串 $t$ 重复 $r$ 次构造的。
+	求最大的 $r$。
+
+	\subsection{输入}
+
+	输入包含一行一个由小写字母组成的字符串 $s$。
+
+	\subsection{输出}
+
+	输出包含一行一个正整数表示答案。
+
+	\subsection{样例 1}
+
+	\subsubsection{输入}
+
+	ababab
+
+	\subsubsection{输出}
+
+	3
+
+	\subsection{样例 2}
+	
+	\subsubsection{输入}
+
+	abcdef
+
+	\subsubsection{输出}
+
+	1
+
+	\subsection{数据规模与约定}
+
+	对于 $30\%$ 的数据，$|S| \le 300$。
+
+	对于 $70\%$ 的数据，$|S| \le 2 \times 10^5$。
+
+	对于 $100\%$ 的数据，$|S| \le 10^6$。
+
+	\subsection{提示}
+
+	请尝试至少 3 种方法。
+
+\end{document}
