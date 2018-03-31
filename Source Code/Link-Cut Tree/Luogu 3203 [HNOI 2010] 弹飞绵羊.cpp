@@ -39,87 +39,90 @@ void printOut(INT_PUT x)
 	if (x < 0) putchar('-'); else x = -x;
 	do buffer[length++] = -(x % 10) + '0'; while (x /= 10);
 	do putchar(buffer[--length]); while (length);
+	putchar('\n');
 }
 
-const int maxn = 10005;
+const int maxn = int(2e5) + 5;
 int n, m;
+int a[maxn];
 
-typedef class LinkCutTree
+class LCT
 {
-	typedef struct SplayNode
+	struct Node
 	{
-		bool flag; // reverse
-		SplayNode* ch[2];
-		SplayNode* parent;
-		SplayNode() : flag() {}
+		int size;
+		bool flag;
+		Node* parent;
+		Node* ch[2];
+		Node() : size() {}
 		void pushdown()
 		{
 			if (flag)
 			{
-				std::swap(ch[0], ch[1]);
 				ch[0]->flag ^= 1;
 				ch[1]->flag ^= 1;
+				std::swap(ch[0], ch[1]);
 				flag = false;
 			}
 		}
-	} Node;
+		void maintain()
+		{
+			size = ch[0]->size + ch[1]->size + 1;
+		}
+		void reverse()
+		{
+			flag ^= 1;
+		}
+	};
 	Node* null;
 	Node nodes[maxn];
 
-	int isRoot(Node* node)
+	bool isRoot(Node* r) { return r->parent->ch[0] != r && r->parent->ch[1] != r; }
+	int trace(Node* r) { return r->parent->ch[1] == r; }
+	void rotate(Node* r)
 	{
-		return node->parent->ch[0] != node && node->parent->ch[1] != node;
-	}
-	int trace(Node* node)
-	{
-		return node->parent->ch[1] == node; // 左 0 右 1
-	}
-	void rotate(Node* r) // 旋转至 r 的父结点的位置
-	{
-		Node* father = r->parent; // 父结点
-		Node* grand = father->parent; // 爷结点
+		Node* father = r->parent;
+		Node* grand = father->parent;
 		int d = trace(r);
-		if (!isRoot(father)) grand->ch[grand->ch[1] == father] = r; // 爷结点的儿子变成了 r
+		if (!isRoot(father)) grand->ch[trace(father)] = r;
+		r->parent = grand;
 		father->ch[d] = r->ch[d ^ 1];
-		father->ch[d]->parent = father; // r 的子结点的 parent 发生了变化
-		father->parent = r; // r 的父结点的 parent 发生了变化
+		r->ch[d ^ 1]->parent = father;
+		father->maintain();
+
 		r->ch[d ^ 1] = father;
-		r->parent = grand; // r 的父结点发生了变化
+		father->parent = r;
+		r->maintain();
 	}
-	void pushdown(Node* r) // 下传根到 r 这条链上的标记
+	void pushdown(Node* r)
 	{
 		if (isRoot(r)) return void(r->pushdown());
 		pushdown(r->parent);
 		r->pushdown();
 	}
-	void splay(Node* r) // 旋转 r 至根 
+	void splay(Node* r)
 	{
 		pushdown(r);
-		while (!isRoot(r)) // 从下往上旋转
+		while (!isRoot(r))
 		{
-			Node* father = r->parent;
-			// 如果是一字型，先旋转上面；如果是之字形，先旋转下面
-			if (!isRoot(father)) rotate(trace(r) == trace(father) ? father : r);
+			Node* parent = r->parent;
+			if (!isRoot(parent)) rotate(trace(r) == trace(parent) ? parent : r);
 			rotate(r);
 		}
 	}
-	void reverse(Node* r)
-	{
-		r->flag ^= 1;
-	}
 
 public:
-	LinkCutTree()
+	LCT()
 	{
 		null = new Node;
 		null->parent = null->ch[0] = null->ch[1] = null;
-	}
-	void init()
-	{
-		for (int i = 1; i <= n; i++)
+		for (int i = 0; i < maxn; i++)
+		{
 			nodes[i].ch[0] = nodes[i].ch[1] = nodes[i].parent = null;
+			nodes[i].size = 1;
+		}
 	}
-	void access(int code) // 之前的 node->ch[1] 的 parent 没变
+	void access(int code)
 	{
 		Node* pre = null;
 		Node* node = nodes + code;
@@ -127,29 +130,20 @@ public:
 		{
 			splay(node);
 			node->ch[1] = pre;
+			node->maintain();
 			pre = node;
 			node = node->parent;
 		}
 	}
-	void makeroot(int code) // 指定结点成为对应连通块在 LCT 中的根
+	void makeroot(int code)
 	{
-		Node* node = nodes + code;
 		access(code);
-		splay(node); // 注意这个点也是 Splay 的根
-		reverse(node);
-	}
-	int findroot(int code) // 寻找某个结点对应连通块在 LCT 中的根
-	{
-		Node* node = nodes + code;
-		access(code);
-		splay(node);
-		while (node->ch[0] != null)
-			node = node->ch[0];
-		return splay(node), node - nodes; // note
+		splay(nodes + code);
+		(nodes + code)->reverse();
 	}
 	void link(int x, int y)
 	{
-		makeroot(x); // x 已是 Splay 的根结点
+		makeroot(x);
 		(nodes + x)->parent = nodes + y;
 	}
 	void cut(int x, int y)
@@ -159,28 +153,39 @@ public:
 		access(y);
 		splay(node);
 		(nodes + x)->parent = node->ch[0] = null;
+		node->maintain();
 	}
-} LCT;
-
-LCT tree;
+	int depth(int x)
+	{
+		makeroot(n);
+		access(x);
+		splay(nodes + x);
+		return (nodes + x)->ch[0]->size;
+	}
+} tree;
 
 void run()
 {
 	n = readIn();
+	for (int i = 0; i < n; i++)
+		a[i] = readIn();
+	for (int i = 0; i < n; i++)
+		tree.link(i, std::min(n, i + a[i]));
 	m = readIn();
-	tree.init();
 	while (m--)
 	{
-		char ins[10];
-		scanf("%s", ins);
-		int x = readIn();
-		int y = readIn();
-		if (ins[0] == 'Q')
-			puts(tree.findroot(x) == tree.findroot(y) ? "Yes" : "No");
-		else if (ins[0] == 'D')
-			tree.cut(x, y);
-		else if (ins[0] == 'C')
-			tree.link(x, y);
+		int ins = readIn();
+		int pos = readIn();
+		if (ins == 1)
+		{
+			printOut(tree.depth(pos));
+		}
+		else if (ins == 2)
+		{
+			tree.cut(pos, std::min(n, pos + a[pos]));
+			a[pos] = readIn();
+			tree.link(pos, std::min(n, pos + a[pos]));
+		}
 	}
 }
 

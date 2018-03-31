@@ -161,9 +161,7 @@ $\mathrm{access}(6)$ 后的偏爱路径（忽略了非偏爱边）
 
 &emsp;&emsp;顾名思义，link 操作将两个**不在同一连通块**的点连接起来。
 
-&emsp;&emsp;假设这两个点为 $x$ 和 $y$，我们首先调用 $\mathrm{makeroot}(x)$，然后我们实际上令 $x$ 成为 $y$ 的子结点就好了。我们从 $x$ 向 $y$ 连一条非偏爱边即可。[^实际]
-
-[^实际]: 实际上还需要做一些别的操作，以方便维护信息，这将在后面提到。
+&emsp;&emsp;假设这两个点为 $x$ 和 $y$，我们首先调用 $\mathrm{makeroot}(x)$，然后我们实际上令 $x$ 成为 $y$ 的子结点就好了。我们从 $x$ 向 $y$ 连一条非偏爱边即可。
 
 ###### ⑤cut 操作
 
@@ -217,7 +215,7 @@ typedef struct SplayNode
 
 &emsp;&emsp;也就是说，LCT 中的 Splay 结点和普通的 Splay 结点没有太大差异，**~~只是~~多了一个 parent 指针**。但另外，可以发现 Splay 结点少了两个成员函数[^习惯]：`maintain` 和 `comp`，前者用于维护一个结点对应子树的 size，后者用来判断应该选择左子树还是右子树。
 
-[^习惯]: 这只是我的习惯，如果你并不习惯在 Splay 结点中直接写成员函数也没关系，我只是想告诉你 LCT 的 Splay 结点不需要引入 size，**因为我们都是从下至上操作**。
+[^习惯]: 这只是我的习惯，如果你并不习惯在 Splay 结点中直接写成员函数也没关系，我只是想告诉你 LCT 的 Splay 结点**在不用维护别的数据的情况下**不需要引入 size。
 
 ###### ②parent 指针
 
@@ -225,7 +223,7 @@ typedef struct SplayNode
 
 [^模板]: 因为 LCT 的实现有很多，选择最适合自己的就好。如果你不会具体实现，又觉得我太弱代码太丑，请跳过实现这一部分。我的代码将会大量使用指针。
 
-&emsp;&emsp;事实上，**我们在维护 LCT 时并不真正的连接非偏爱边，而是直接将 parent 指针当作保存非偏爱边的容器**。当一个点不是 Splay 的根结点时，parent 指针指向它在 Splay 中的父结点；当一个点是 Splay 的根结点时，parent 指针会被当作非偏爱边。如何判断 parent 指针是非偏爱边还是真正指向 Splay 中的父结点的指针呢？只需要判断这个点是不是 Splay 的根结点就好了：
+&emsp;&emsp;事实上，**我们在维护 LCT 时并不真正地连接非偏爱边，而是直接将 parent 指针当作保存非偏爱边的容器**。当一个点不是 Splay 的根结点时，parent 指针指向它在 Splay 中的父结点；当一个点是 Splay 的根结点时，parent 指针会被当作非偏爱边。如何判断 parent 指针是非偏爱边还是真正指向 Splay 中的父结点的指针呢？只需要判断这个点是不是 Splay 的根结点就好了：
 
 ```c++
 int isRoot(Node* node)
@@ -349,9 +347,11 @@ int findroot(int code) // 寻找某个结点对应连通块在 LCT 中的根
 	splay(node);
 	while (node->ch[0] != null)
 		node = node->ch[0];
-	return node - nodes;
+	return splay(node), node - nodes; // note
 }
 ```
+
+&emsp;&emsp;需要注意要在最后对根结点进行 Splay 操作，以保证时间复杂度。
 
 ###### ⑥link 和 cut 操作
 
@@ -397,3 +397,275 @@ void init()
 &emsp;&emsp;可以证明，使用 Splay 维护 LCT 的均摊时间复杂度是 $O(n \log n)$ 的。很明显的是，LCT 常数巨大。
 
 &emsp;&emsp;具体的证明高深莫测，限于水平和偏重点，我就不证了~~，建议你也不要入坑去证~~。
+
+## 进阶
+
+##### e.g. [Luogu 3203 弹飞绵羊](https://www.luogu.org/problemnew/show/P3203)
+
+&emsp;&emsp;分块经典题目，同时也是 LCT 经典题目。
+
+------
+
+&emsp;&emsp;对于每一个位置，我们将它看作一个结点，另外我们虚拟一个 $n + 1$ 号结点，表示一条就跳出去的情况。由于每一个点只能跳到唯一的位置，因此我们可以建成一棵树。这样，询问就等价于问每一个点到根结点的距离。
+
+&emsp;&emsp;如何使用 LCT 来搞呢？如果我们额外维护子树大小，我们就可以知道有多少个结点的中序遍历在当前结点的前面，也就可以做了。
+
+###### ①维护 size
+
+&emsp;&emsp;这道题需要维护子树大小，虽然子树大小不是 LCT 的必需品，但是它是做题的必需品。下面是新的结点定义：
+
+```c++
+struct Node
+{
+	int size;
+	bool flag;
+	Node* parent;
+	Node* ch[2];
+	Node() : size() {}
+	void pushdown()
+	{
+		if (flag)
+		{
+			ch[0]->flag ^= 1;
+			ch[1]->flag ^= 1;
+			std::swap(ch[0], ch[1]);
+			flag = false;
+		}
+	}
+	void maintain()
+	{
+		size = ch[0]->size + ch[1]->size + 1;
+	}
+	void reverse()
+	{
+		flag ^= 1;
+	}
+};
+```
+
+（把 reverse 写进 `Node` 中与写外面没有区别）
+
+&emsp;&emsp;最主要需要维护 size 的地方是 rotate 操作：
+
+```c++
+void rotate(Node* r)
+{
+	Node* father = r->parent;
+	Node* grand = father->parent;
+	int d = trace(r);
+	if (!isRoot(father)) grand->ch[trace(father)] = r;
+	r->parent = grand;
+	father->ch[d] = r->ch[d ^ 1];
+	r->ch[d ^ 1]->parent = father;
+	father->maintain();
+	r->ch[d ^ 1] = father;
+	father->parent = r;
+	r->maintain();
+}
+```
+
+&emsp;&emsp;其它地方，仅当需要连接或者删去 Splay 中的边时，才需要维护 size。**由于 link 操作连接的是非偏爱边，所以不需要维护 size；**access 和 cut 操作需要断开或者连上 Splay 中的边，所以也需要维护 size：
+
+```c++
+void access(int code)
+{
+	Node* pre = null;
+	Node* node = nodes + code;
+	while (node != null)
+	{
+		splay(node);
+		node->ch[1] = pre;
+		node->maintain();
+		pre = node;
+		node = node->parent;
+	}
+}
+void cut(int x, int y)
+{
+	Node* node = nodes + y;
+	makeroot(x);
+	access(y);
+	splay(node);
+	(nodes + x)->parent = node->ch[0] = null;
+	node->maintain();
+}
+```
+
+###### ②获取结点在原树中的深度
+
+&emsp;&emsp;首先需要对原树的根结点进行 makeroot 操作，然后对需要计算的结点进行 access 和 splay 操作，这样它的左子树大小就是深度比自己浅的结点个数，正是本题需要求的东西。
+
+```c++
+int depth(int x)
+{
+	makeroot(n);
+	access(x);
+	splay(nodes + x);
+	return (nodes + x)->ch[0]->size;
+}
+```
+
+##### e.g. [Luogu 3690 [模板] Link-Cut Tree](https://www.luogu.org/problemnew/show/P3690)
+
+题目大意：给你一个森林，要你维护森林连通性，不保证删边或者加边操作合法。森林中的点有点权，有查询路径上点权异或和的询问，还要求支持单点修改点权。
+
+------
+
+&emsp;&emsp;首先我们解决 link 操作不合法的问题，很简单，只需要用 findroot 判断是否在同一连通块就好了。
+
+```c++
+void link(int x, int y)
+{
+	makeroot(x);
+	if (findroot(y) == x) return;
+	(nodes + x)->parent = nodes + y;
+}
+```
+
+###### ①解决 cut 的合法性问题
+
+&emsp;&emsp;**cut 操作合法的先决条件是待操作结点要相邻。**我们首先 $\mathrm{makeroot}(x)$，然后检查 $\mathrm{findroot}(y)$ 是否为 $x$，如果不是，显然它们不在同一连通块。否则我们 $\mathrm{Splay}(y)$（注意在 findroot 中已经 $\mathrm{access}(y)$ 了），然后检查 $x$ 和 $y$ 的中序遍历之间是否有别的结点，只需要看 $y$ 的左子树大小是否为 $1$ 即可。如果不需要维护大小呢？那就检查两个地方：一看 $y$ 的左儿子是不是 $x$，二看 $x$ 是不是没有右儿子。检查之后我们才能 cut。
+
+```c++
+void cut(int x, int y)
+{
+	makeroot(x);
+	if (findroot(y) != x) return;
+	Node* node = nodes + y;
+	splay(node);
+	if (node->ch[0] != nodes + x || (nodes + x)->ch[1] != null) return; // note
+	(nodes + x)->parent = node->ch[0] = null; // note
+	node->maintain();
+}
+```
+
+&emsp;&emsp;注意别写错了。
+
+###### ②维护异或和
+
+&emsp;&emsp;事实上，**我们只需要维护 Splay 中对应子树的异或和就行了，而且只需要沿用[之前那道题](#①维护-size)的做法，改一下 maintain 函数就好了**。
+
+```c++
+void maintain()
+{
+	sum = weight ^ ch[0]->sum ^ ch[1]->sum;
+}
+```
+
+&emsp;&emsp;就是说，调用 maintain 函数的时机是一样的，只是 maintain 函数的内容变了。**这启示我们，LCT 可以很方便地维护点上的信息**。
+
+&emsp;&emsp;相比之下，修改点权和查询点权异或和就很简单了，随便写写都能过。记住在 Splay 发生改变时进行 maintain 操作。
+
+```c++
+void change(int pos, int val)
+{
+	access(pos);
+	Node* node = nodes + pos;
+	splay(node);
+	node->weight = val;
+	node->maintain();
+}
+int query(int x, int y)
+{
+	makeroot(x);
+	access(y);
+	Node* node = nodes + y;
+	splay(node);
+	return node->sum;
+}
+```
+##### e.g. [Luogu 2387 [NOI 2014] 魔法森林](https://www.luogu.org/problemnew/show/P2387)
+
+题目大意：给定一张 $n$ 个点 $m$ 条边的图，每条边有两个边权 $a$ 和 $b$。找一条 $1$ 到 $n$ 的路径使得 $\max\{ a \} + \max \{ b \}$ 最小，如果不存在输出 $-1$。
+
+------
+
+&emsp;&emsp;很容易往最小生成树上面去想，然后考虑一个套路做法。我们枚举 $a$ 的最大权值，然后看对于每个 $a$ 答案是多少。具体地说，我们可以把边按照 $a$ 从小到大排序，依次加入图中，每次再看看 $1$ 到 $n$ 的最优答案。
+
+&emsp;&emsp;如何看呢？我们直接令 $a$ 为当前的最大边权，然后找一条从 $1$ 到 $n$ 的路径使得路径上最大的 $b$ 最小就好了。利用非法解不会最优的思想，我们可以用 SPFA 在 $O(n m^2)$ 的时间复杂度内解决这个问题。然后恭喜 TLE。（我不会打大优化，所以就不讨论如何优化这个算法了）
+
+------
+
+&emsp;&emsp;我们考虑使用 LCT 来维护这个东西。
+
+###### ①边权转点权
+
+&emsp;&emsp;一个不可否认的事实是，**LCT 真的没有办法维护边上的信息，所以我们要想个办法把边上的信息换到点上**。
+
+&emsp;&emsp;由于树有 $n$ 个点，$n - 1$ 条边，所以我们自然会想到把边的信息放到儿子结点上，但是这在 LCT 中是行不通的，**因为 LCT 本身可以换根，一条边连接的两个点的父子关系会发生变化**。
+
+&emsp;&emsp;正确的做法是**为每一条边都虚拟一个结点，点权为原边权，而原点权为 $0$**。加边时，我们从原来的两个端点分别向边对应的端点连边即可。
+
+###### ②维护最小生成树
+
+&emsp;&emsp;事实上，原问题已经被转换成了一个动态维护最小生成树的问题：只不过原始的动态维护最小生成树需要首先求一次 MST，但这道题是从零开始维护的。
+
+&emsp;&emsp;如何维护 MST 呢？稍微有点经验的人都知道，加入一条边时，如果两点不在同一连通块，那么直接连上就行；如果两点在同一连通块，那么一定会形成一个环。我们删去环上的最大边即可。
+
+&emsp;&emsp;如何使用 LCT 来维护呢？对于每个 Splay 结点，我们保存它所在子树的最大边权以及相应的编号即可。
+
+```c++
+struct Node
+{
+	Node* parent;
+	Node* ch[2];
+	bool flag;
+	int weight;
+	int max;
+	int idx;
+	int maxIdx;
+	void pushdown()
+	{
+		if (flag)
+		{
+			std::swap(ch[0], ch[1]);
+			ch[0]->flag ^= 1;
+			ch[1]->flag ^= 1;
+			flag = false;
+		}
+	}
+	void maintain()
+	{
+		if (weight >= std::max(ch[0]->max, ch[1]->max))
+		{
+			max = weight;
+			maxIdx = idx;
+		}
+		else if (ch[0]->max > ch[1]->max)
+		{
+			max = ch[0]->max;
+			maxIdx = ch[0]->maxIdx;
+		}
+		else
+		{
+			max = ch[1]->max;
+			maxIdx = ch[1]->maxIdx;
+		}
+	}
+	void reverse() { flag ^= 1; }
+};
+```
+
+&emsp;&emsp;maintain 操作的执行时机和之前完全一样。剩下查询信息的代码就很简单了，善用 makeroot，access 和 splay 即可。详见代码仓库。
+
+------
+
+&emsp;&emsp;最小生成树加边：
+
+```c++
+if (e.from == e.to) continue; // note
+if (tree.findroot(e.from) != tree.findroot(e.to))
+{
+	tree.link(e.from, n + i);
+	tree.link(e.to, n + i);
+}
+else
+{
+	int code = tree.qMax(e.from, e.to) - n;
+	if (edges[code].b <= e.b) continue;
+	tree.cut(code + n, edges[code].from);
+	tree.cut(code + n, edges[code].to);
+	tree.link(n + i, e.from);
+	tree.link(n + i, e.to);
+}
+```

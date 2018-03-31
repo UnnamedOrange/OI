@@ -7,7 +7,10 @@
 &emsp;&emsp;一半。
 
 - [x] KMP
-- [ ] Link-Cut Tree
+- [x] Link-Cut Tree
+
+&emsp;&emsp;基础。
+
 - [x] Manacher
 
 &emsp;&emsp;忘了。
@@ -26,7 +29,7 @@
 
 - [ ] Guass
 
-&emsp;&emsp;一半 + 忘了。
+&emsp;&emsp;一半。
 
 - [ ] 行列式
 
