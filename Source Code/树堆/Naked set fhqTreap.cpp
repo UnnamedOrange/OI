@@ -71,12 +71,25 @@ class fhqTreap
 		}
 	}
 
-	void split(Node* r, Node* &left, Node* &right, const T& x)
+	typedef std::pair<Node*, Node*> DNode;
+	DNode split(Node* r, const T& x)
 	{
-		if (r == null) return void(left = right = null);
-		if (x < r->val) right = r, split(r->ch[0], left, r->ch[0], x);
-		else left = r, split(r->ch[1], r->ch[1], right, x);
+		DNode ret(null, null);
+		if (r == null) return ret;
+		if (x < r->val)
+		{
+			ret = split(r->ch[0], x);
+			r->ch[0] = ret.second;
+			ret.second = r;
+		}
+		else
+		{
+			ret = split(r->ch[1], x);
+			r->ch[1] = ret.first;
+			ret.first = r;
+		}
 		r->maintain(); // note
+		return ret;
 	}
 	Node* merge(Node* left, Node* right)
 	{
@@ -112,21 +125,21 @@ public:
 	}
 	void insert(const T& x)
 	{
-		Node *left, *right;
-		split(root, left, right, x);
+		DNode ret;
+		ret = split(root, x);
 		Node* node = null;
 		alloc(node);
 		node->val = x;
-		root = merge(merge(left, node), right);
+		root = merge(merge(ret.first, node), ret.second);
 	}
 	void erase(const T& x)
 	{
-		Node *left, *right;
-		split(root, left, right, x - 1); // note: to optimize
-		Node* del;
-		split(right, del, right, x);
-		delete del;
-		root = merge(left, right);
+		DNode ret;
+		ret = split(root, x - 1); // note: to optimize
+		Node* left = ret.first;
+		ret = split(ret.second, x);
+		delete ret.first;
+		root = merge(left, ret.second);
 	}
 	bool count(const T& x)
 	{
