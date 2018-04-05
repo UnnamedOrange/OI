@@ -38,9 +38,8 @@
 - [x] SA
 - [x] SAM
 - [ ] 吉司机线段树
-- [ ] 可持久化数据结构
+- [x] 可持久化数据结构
 
-&emsp;&emsp;初步。
 
 - [ ] 类欧几里得
 
@@ -71,5 +70,8 @@
 - [ ] Cactus
 
 &emsp;&emsp;拒之门外。
+
+- [ ] Segment Tree
+- [x] Linear Basis
 
 - [x] Permutation
