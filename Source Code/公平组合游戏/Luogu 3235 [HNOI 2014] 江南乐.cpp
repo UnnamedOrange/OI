@@ -51,7 +51,16 @@ int DP(int x)
 {
 	int& ans = SG[x];
 	if (~ans) return ans;
-	for (int i = 2, t; i <= x; i = t + 1)
+	for (register int i = 2, t; i <= x; i = t + 1)
+	{
+		t = x / (x / i);
+
+		int Div = x / i;
+		int Mod = x - Div * i;
+		DP(Div);
+		if (t != i) DP(Div + 1);
+	}
+	for (register int i = 2, t; i <= x; i = t + 1)
 	{
 		t = x / (x / i);
 
