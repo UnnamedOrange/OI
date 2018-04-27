@@ -63,7 +63,7 @@ void printOut(INT_PUT x)
 	putchar('\n');
 }
 
-struct ACAutomation
+struct ACAutomaton
 {
 	static const int alphabet = 26;
 	static inline int code(char ch)
@@ -107,7 +107,7 @@ struct ACAutomation
 	static Pool pool;
 
 	Node* root;
-	ACAutomation()
+	ACAutomaton()
 	{
 		isInitialized = false;
 		root = pool.alloc();
@@ -115,7 +115,7 @@ struct ACAutomation
 	void reset()
 	{
 		pool.reset(); // 需要改造内存池
-		new(this) ACAutomation;
+		new(this) ACAutomaton;
 	}
 
 	bool isInitialized;
@@ -175,10 +175,10 @@ struct ACAutomation
 		return ret;
 	}
 };
-ACAutomation::Pool ACAutomation::pool;
+ACAutomaton::Pool ACAutomaton::pool;
 
 int n;
-ACAutomation ac;
+ACAutomaton ac;
 
 void run()
 {
