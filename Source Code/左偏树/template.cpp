@@ -2,6 +2,10 @@
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
+#include <cassert>
+#include <cctype>
+#include <climits>
+#include <ctime>
 #include <iostream>
 #include <algorithm>
 #include <vector>
@@ -12,73 +16,52 @@
 #include <map>
 #include <set>
 #include <bitset>
-typedef int INT;
+#include <list>
+#include <functional>
+typedef long long LL;
+typedef unsigned long long ULL;
 using std::cin;
 using std::cout;
 using std::endl;
-inline INT readIn()
+typedef int INT_PUT;
+INT_PUT readIn()
 {
-	INT a = 0;
-	bool minus = false;
+	INT_PUT a = 0; bool positive = true;
 	char ch = getchar();
-	while (!(ch == '-' || (ch >= '0' && ch <= '9'))) ch = getchar();
-	if (ch == '-')
-	{
-		minus = true;
-		ch = getchar();
-	}
-	while (ch >= '0' && ch <= '9')
-	{
-		a = a * 10 + (ch - '0');
-		ch = getchar();
-	}
-	if (minus) a = -a;
-	return a;
+	while (!(ch == '-' || std::isdigit(ch))) ch = getchar();
+	if (ch == '-') { positive = false; ch = getchar(); }
+	while (std::isdigit(ch)) { a = a * 10 - (ch - '0'); ch = getchar(); }
+	return positive ? -a : a;
 }
-inline void printOut(INT x)
+void printOut(INT_PUT x)
 {
-	char buffer[20];
-	INT length = 0;
-	bool minus = x < 0;
-	if (minus) x = -x;
-	do
-	{
-		buffer[length++] = x % 10 + '0';
-		x /= 10;
-	} while (x);
-	if (minus) buffer[length++] = '-';
-	do
-	{
-		putchar(buffer[--length]);
-	} while (length);
-	putchar('\n');
+	char buffer[20]; int length = 0;
+	if (x < 0) putchar('-'); else x = -x;
+	do buffer[length++] = -(x % 10) + '0'; while (x /= 10);
+	do putchar(buffer[--length]); while (length);
 }
 
-//because of the merge operation, the method of "null" is not available
-//so use NULL to replace it
-template <typename T>
-class Leftist
+template <typename T, typename C = std::less<T> >
+class priority_queue
 {
 	struct Node
 	{
 		T v;
-		INT dis;
+		int dis;
 		Node* ch[2];
 		Node() : v(), dis(-1), ch() {}
-		Node(const T v) : v(v), dis(0), ch() {}
+		Node(const T& v) : v(v), dis(0), ch() {}
 	};
 	Node* root;
-	INT s;
+	int s;
 
 private:
-	void operator= (const Leftist& b) {} //no copy function
+	void operator=(const priority_queue&) {} // ½ûÖ¹¿½±´
 
 public:
-	Leftist() : root(), s() {}
-	~Leftist()
-	{
-		clear();
-	}
+	priority_queue() : root(), s() {}
+	~priority_queue() { clear(); }
+
 private:
 	void clear(Node* &r)
 	{
@@ -89,57 +72,54 @@ private:
 		r = NULL;
 	}
 public:
-	void clear()
-	{
-		clear(root);
-		s = 0;
-	}
+	void clear() { clear(root); }
 
-	//the below are significant
+public:
+	int size() { return s; }
+	bool empty() { return !s; }
+
+	// significant below
 private:
 	static Node* merge(Node* a, Node* b)
 	{
+		if (!b) return a;
 		if (!a) return b;
-		else if (!b) return a;
-		if (b->v < a->v)
-			std::swap(a, b);
+		if (C()(b->v, a->v)) std::swap(a, b);
 		a->ch[1] = merge(a->ch[1], b);
+		if (!a->ch[0] || (a->ch[1] && a->ch[1]->dis > a->ch[0]->dis)) // note
+			std::swap(a->ch[0], a->ch[1]);
 		if (a->ch[1])
 			a->dis = a->ch[1]->dis + 1;
 		else
 			a->dis = 0;
 		return a;
-	} //core
+	}
 public:
-	void merge(Leftist &inner)
+	void merge(priority_queue& b)
 	{
-		root = merge(root, inner.root);
-		s += inner.s;
-		inner.root = NULL;
-		inner.s = NULL;
+		root = merge(root, b.root);
+		s += b.s;
+		b.root = NULL;
+		b.s = NULL;
 	}
 
 public:
-	void push(const T v)
+	void push(const T& x)
 	{
-		root = merge(root, new Node(v));
+		root = merge(root, new Node(x));
 		s++;
 	}
-public:
-	T top()
+	const T& top() const
 	{
 		return root->v;
 	}
-public:
 	void pop()
 	{
-		Node* old = root;
+		Node* del = root;
 		root = merge(root->ch[0], root->ch[1]);
-		delete old;
+		delete del;
 		s--;
 	}
-public:
-	INT size() { return s; }
 };
 
 void run()

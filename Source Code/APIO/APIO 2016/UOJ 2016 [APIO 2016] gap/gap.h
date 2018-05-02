@@ -1,0 +1,1 @@
+void MinMax(long long min, long long max, long long* qmin, long long* qmax);
