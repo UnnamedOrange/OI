@@ -42,6 +42,7 @@ void printOut(INT_PUT x)
 	do putchar(buffer[--length]); while (length);
 }
 
+const LL INF = (~(int(1) << (sizeof(int) * 8 - 1))) >> 1;
 const int maxn = int(3e5) + 5;
 int n;
 char str[maxn];
@@ -72,7 +73,7 @@ void GetSA()
 		for (loop i = 0; i < buf_size; i++) buf[i] = 0;
 		for (loop i = 0; i < n; i++) buf[rank[SA_second[i]]]++;
 		for (loop i = 1; i < buf_size; i++) buf[i] += buf[i - 1];
-		for (loop i = n; ~i; i--)
+		for (loop i = n - 1; ~i; i--)
 			SA[--buf[rank[SA_second[i]]]] = SA_second[i];
 
 		int* oldRank = rank;
@@ -119,12 +120,65 @@ std::vector<int> offline[maxn];
 struct DS
 {
 	int parent[maxn];
+	int size[maxn];
+	LL majorP[maxn];
+	LL minorP[maxn];
+	LL miniP[maxn];
+	LL majorN[maxn];
+	LL minorN[maxn];
+	LL miniN[maxn];
 	void init()
 	{
 		for (int i = 0; i < n; i++)
 		{
 			parent[i] = i;
+			size[i] = 1;
+			majorP[i] = -INF;
+			minorP[i] = -INF;
+			miniP[i] = INF;
+			majorN[i] = INF;
+			minorN[i] = INF;
+			miniN[i] = -INF;
+
+			if (a[SA[i]] >= 0)
+				majorP[i] = miniP[i] = w[i];
+			else
+				majorN[i] = miniN[i] = w[i];
 		}
+	}
+	int find(int x)
+	{
+		return x == parent[x] ? x : parent[x] = find(parent[x]);
+	}
+	template <typename C>
+	static void update(LL& major, LL& minor, LL val)
+	{
+		if (C()(minor, val))
+		{
+			if (C()(major, val))
+			{
+				minor = major;
+				major = val;
+			}
+			else
+				minor = val;
+		}
+	}
+	void unite(int x, int y)
+	{
+		int px = find(x);
+		int py = find(y);
+		if (px == py) return;
+		if (size[px] < size[py])
+			std::swap(px, py);
+		parent[py] = px;
+		size[px] += size[py];
+		update<std::less<LL> >(majorP[px], minorP[px], majorP[py]);
+		update<std::less<LL> >(majorP[px], minorP[px], minorP[py]);
+		update<std::greater<LL> >(majorN[px], minorN[px], majorN[py]);
+		update<std::greater<LL> >(majorN[px], minorN[px], minorN[py]);
+		miniP[px] = std::min(miniP[px], miniP[py]);
+		miniN[px] = std::min(miniN[px], miniN[py], std::greater<LL>());
 	}
 } ds;
 
@@ -141,11 +195,45 @@ void run()
 	GetHeight();
 	for (loop i = 0; i < n; i++)
 		w[i] = a[SA[i]];
-	for (loop i = n; i; i--)
+	for (loop i = n - 1; i; i--)
 		offline[height[i]].push_back(i);
 
 	ds.init();
+	LL cnt1 = 0, cnt2 = -INF * INF;
+	for (int i = n - 1; ~i; i--)
+	{
+		for (int j = 0; j < offline[i].size(); j++)
+		{
+			int pos = offline[i][j];
+			register LL t;
 
+			t = ds.size[ds.find(pos)];
+			cnt1 -= t * (t - 1) >> 1;
+			t = ds.size[ds.find(pos - 1)];
+			cnt1 -= t * (t - 1) >> 1;
+			ds.unite(pos, pos - 1);
+			t = ds.size[ds.find(pos)];
+			cnt1 += t * (t - 1) >> 1;
+
+			t = ds.find(pos);
+			if (ds.majorP[t] >= 0 && ds.minorP[t] >= 0)
+				cnt2 = std::max(cnt2, (LL)ds.majorP[t] * ds.minorP[t]);
+			if (ds.majorN[t] < 0 && ds.minorN[t] < 0)
+				cnt2 = std::max(cnt2, (LL)ds.majorN[t] * ds.minorN[t]);
+			if (ds.miniP[t] >= 0 && ds.miniN[t] < 0)
+				cnt2 = std::max(cnt2, ds.miniP[t] * ds.miniN[t]);
+		}
+		ans1[i] = cnt1;
+		ans2[i] = cnt1 ? cnt2 : 0;
+	}
+
+	for (int i = 0; i < n; i++)
+	{
+		printOut(ans1[i]);
+		putchar(' ');
+		printOut(ans2[i]);
+		putchar('\n');
+	}
 }
 
 int main()
