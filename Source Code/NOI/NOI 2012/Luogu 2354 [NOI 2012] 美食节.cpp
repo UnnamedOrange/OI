@@ -1,5 +1,3 @@
-#pragma G++ optimize(3)
-#pragma GCC optimize(3)
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
