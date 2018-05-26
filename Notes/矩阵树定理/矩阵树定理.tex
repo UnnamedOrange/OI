@@ -1,21 +1,32 @@
 \documentclass[UTF8]{article}
 \usepackage{ctex}
-\usepackage{hyperref} %用于设置 PDF 的信息
-\usepackage{setspace} %用于设置行间距
-\usepackage{listings} %用于代码高亮
-\usepackage{xcolor} %用于处理颜色
-\usepackage{ulem} %用于各种线
-\usepackage{amsmath} %用于数学公式（如 \begin{align}）
-\usepackage{booktabs} %用于表格画线
-\usepackage{graphicx} %用于插入图片
+\usepackage{hyperref}	%用于设置 PDF 的信息
+\usepackage{setspace}	%用于设置行间距
+\usepackage{listings}	%用于代码高亮
+\usepackage{xcolor}		%用于处理颜色
+\usepackage{ulem}		%用于各种线
+\usepackage{amsmath}	%用于数学公式（如 \begin{align}）
+\usepackage{amsthm}		%用于数学版式（如 \newtheorem{cmd}{caption}）
+\usepackage{booktabs}	%用于表格画线
+\usepackage{graphicx}	%用于插入图片
 \usepackage[top = 0.8in, bottom = 0.8in, left = 0.8in, right = 0.8in]{geometry} %设置页边距
 
-\hypersetup{
-	pdfauthor = Orange,
-	pdftitle = 矩阵树定理,
-	pdfsubject = 矩阵树定理,
-	pdfkeywords = 矩阵树定理，行列式
+\newcommand \insertsubject
+{
+	矩阵树定理
 }
+
+\hypersetup
+{
+	pdfauthor = Orange,
+	pdftitle = \insertsubject,
+	pdfsubject = \insertsubject,
+	pdfkeywords = \insertsubject
+}
+
+\title{\insertsubject}
+\author{Orange}
+\date{\today}
 
 \setmonofont{Consolas} %设置字体
 \lstset{
@@ -28,9 +39,12 @@
     xleftmargin = 2em, xrightmargin = 2em, aboveskip = 1em,
 }
 
-\title{矩阵树定理}
-\author{Orange}
-\date{\today}
+\newcommand \subsubsubsection [2][4mm]
+{
+	\vspace{#1}
+	{\leftline{\heiti #2}}
+	\vspace{2mm}
+}
 
 \begin{document}
 
@@ -101,9 +115,7 @@
 	所表示的方程组的解的算法，具体的内容不再详细阐述，
 	在此，只给出高斯消元的一些简单变形。
 
-	\bigskip
-
-	\leftline{\heiti {模意义下的的高斯消元}}
+	\subsubsubsection{模意义下的的高斯消元}
 
 	一般的高斯消元都用于解决实数域上的线性方程组问题，
 	但有时需要求出模意义下的解，这个怎么解决呢？
@@ -144,9 +156,7 @@
 	$a'x + b'y + c'z \equiv d' \pmod m$，
 	因此模意义下的矩阵初等变换是正确的。
 
-	\bigskip
-
-	\leftline{\heiti {使用辗转相除法的高斯消元}}
+	\subsubsubsection{使用辗转相除法的高斯消元}
 
 	在矩阵初等变换时，为了消元，
 	我们需要为某一行乘上一个系数，
@@ -259,9 +269,11 @@ int main() { return 0; }
 
 	\bigskip
 
-	根据定义，我们有如下较为简单，但极为重要的结论。
+	根据定义，我们有如下较为简单，但极为重要的结论：
 
-	\leftline{1. 下三角行列式的值等于其主对角线各元素的乘积：}
+	\newtheorem{theorema}{}
+
+	{\theorema 下三角行列式的值等于其主对角线各元素的乘积。}
 	\begin{equation*}
 		\begin{vmatrix}
 			a_{1, 1} & 0 & 0 & \cdots & 0
@@ -277,9 +289,8 @@ int main() { return 0; }
 		=
 		\prod_{i = 1}^{n} a_{i, i}
 	\end{equation*}
-	\bigskip
 
-	\leftline{2. 上三角行列式的值等于其主对角线各元素的乘积：}
+	{\theorema 上三角行列式的值等于其主对角线各元素的乘积。}
 	\begin{equation*}
 		\begin{vmatrix}
 			a_{1, 1} & a_{1, 2} & a_{1, 3} & \cdots & a_{1, n}
@@ -295,9 +306,8 @@ int main() { return 0; }
 		=
 		\prod_{i = 1}^{n} a_{i, i}
 	\end{equation*}
-	\bigskip
 
-	\leftline{3. 对角行列式的值等于其主对角线各元素的乘积：}
+	{\theorema 对角行列式的值等于其主对角线各元素的乘积。}
 	\begin{equation*}
 		\begin{vmatrix}
 			a_{1, 1} & 0 & 0 & \cdots & 0
@@ -313,6 +323,7 @@ int main() { return 0; }
 		=
 		\prod_{i = 1}^{n} a_{i, i}
 	\end{equation*}
+
 	\bigskip
 
 	类似地，对于除次对角线外的元素均为 $0$ 的行列式，
@@ -331,11 +342,11 @@ int main() { return 0; }
 	其中 $i_1 i_2 \cdots i_n$ 为一个 $n$ 级排列，
 	$j_1 j_2 \cdots j_n$ 为所有的 $n$ 级排列。
 
-	\bigskip
+	\subsubsubsection{练习}
 
-	\leftline{\heiti {练习}}
+	\newtheorem*{theoremb}{e.g}
 
-	e.g. 1
+	{\theoremb 1}
 
 	\begin{align*}
 		&
@@ -356,9 +367,7 @@ int main() { return 0; }
 		(-1)^{n - 1} n!
 	\end{align*}
 
-	\bigskip
-
-	e.g. 2
+	{\theoremb 2}
 
 	\begin{equation*}
 		\begin{vmatrix}
@@ -387,40 +396,31 @@ int main() { return 0; }
 	将一个一般的行列式转变成等效的对角行列式的方法就是
 	利用\textbf{\uline{行列式的性质}}进行\textbf{\uline{行列式初等变换}}。
 
-	\bigskip
+	\newtheorem{theoremc}{性质}
+	\newtheorem{theoremd}{推论}
 
-	\leftline{性质 1}
+	{
+		\theoremc
+		$D_n = D_n^T$，其中 $D_n^T$ 为 $D_n$ 的转置。
 
-	$D_n = D_n^T$，其中 $D_n^T$ 为 $D_n$ 的转置。
+		\theoremc
+		互换行列式的两行或两列，行列式的值变号。
+		\theoremd
+		若 $D_n$ 的两行或两列完全相同，则 $D_n = 0$。
 
-	\bigskip
+		\theoremc
+		用数 $k$ 乘以行列式的某一行或某一列，等于 $k$ 乘以行列式。
+		\theoremd
+		$D$ 中某一行或某一列中所有元素的因子可以提到行列式的外面。
+		\theoremd
+		若 $D$ 的某两行或某两列的对应元素成比例，则 $D = 0$。
 
-	\leftline{性质 2}
+		\theoremc
+		行列式 $D$ 的某一行或某一列的所有元素都乘以数 $k$
+		加到另一行或另一列（行对行，列对列）的相应元素上，行列式的值不变。
+	}
 
-	互换行列式的两行或两列，行列式的值变号。
-
-	\qquad 推论：若 $D_n$ 的两行或两列完全相同，则 $D_n = 0$。
-
-	\bigskip
-
-	\leftline{性质 3}
-
-	用数 $k$ 乘以行列式的某一行或某一列，等于 $k$ 乘以行列式。
-
-	\qquad 推论 1：$D$ 中某一行或某一列中所有元素的因子可以提到行列式的外面。
-
-	\qquad 推论 2：若 $D$ 的某两行或某两列的对应元素成比例，则 $D = 0$。
-
-	\bigskip
-
-	\leftline{性质 4}
-
-	行列式 $D$ 的某一行或某一列的所有元素都乘以数 $k$
-	加到另一行或另一列（行对行，列对列）的相应元素上，行列式的值不变。
-
-	\bigskip
-
-	\leftline{\heiti {利用性质对行列式进行``高斯消元''}}
+	\subsubsubsection{利用性质对行列式进行``高斯消元''}
 
 	观察性质 4，可以发现，我们完全可以仿照高斯消元处理行列式的方法，
 	将行列式变成一个上三角矩阵。可以这样做的原因是
@@ -439,9 +439,7 @@ int main() { return 0; }
 	我们把这 $k^2$ 个元素按照相对位置排列成一个新的行列式，
 	叫作原矩阵或行列式的一个 \textbf{\uline{$k$ 阶子式}}。
 
-	\bigskip
-
-	\leftline{\heiti {主子式}}
+	\subsubsubsection{主子式}
 
 	对于行列式 $D_n$，我们称选择
 	$r_{i_1} r_{i_2} \cdots r_{i_k}$ 行和
@@ -452,17 +450,13 @@ int main() { return 0; }
 	主子式的一个重要特征是：\textbf{对于在被选行（列）的主对角线上的元素，
 	它们均存在于主子式中}。
 
-	\bigskip
-
-	\leftline{\heiti 余子式}
+	\subsubsubsection{余子式}
 
 	对于行列式 $D_n$，划去第 $i$ 行与第 $j$ 列元素后，
 	所留下来的 $n - 1$ 阶行列式叫做\textbf{\uline{余子式}}，
 	记作 $M_{i, j}$；也可被称为 $a_{i, j}$ 的余子式。
 
-	\bigskip
-
-	\leftline{\heiti {代数余子式}}
+	\subsubsubsection{代数余子式}
 
 	我们记 $A_{i, j}$ 表示 $a_{i, j}$ 的\textbf{\uline{代数余子式}}，
 	$A_{i, j}$ 满足：
@@ -559,24 +553,22 @@ int main() { return 0; }
 
 	\subsubsection{特殊情况}
 
-	\leftline{\heiti {基尔霍夫矩阵的行列式}}
+	\subsubsubsection[0mm]{基尔霍夫矩阵的行列式}
 
 	可以证明：对于任意图的基尔霍夫矩阵 $K$，有：
 	$$
 	\det(K) = 0
 	$$
 
-	\bigskip
-
-	\leftline{证明}
-
-	可以发现，\textbf{基尔霍夫矩阵的每一行的和都是 $0$}。
-	我们将所有列都加到第一列中，则第一列将全部变成 $0$，
-	此时易得 $\det(K) = 0$。
+	\begin{proof}
+		可以发现，\textbf{基尔霍夫矩阵的每一行的和都是 $0$}。
+		我们将所有列都加到第一列中，则第一列将全部变成 $0$，
+		此时易得 $\det(K) = 0$。
+	\end{proof}
 
 	\bigskip
 
-	\leftline{\heiti {当这张图是一个以 $i$ 为根的树形图时}}
+	\subsubsubsection{当这张图是一个以 $i$ 为根的树形图时}
 
 	可以证明：如果这张图是一个以 $i$ 为根的树形图，那么有：
 	$$
@@ -584,24 +576,20 @@ int main() { return 0; }
 	$$
 	其中 $M_{i, i}$ 表示去掉第 $i$ 行的 $n - 1$ 阶主子式。
 
-	\bigskip
+	\begin{proof}
+		我们对结点重新标号，按照它们的深度从小到大标号，
+		显然这并不会改变我们的结果。
 
-	\leftline{证明}
+		设 $M = M_{1, 1}$，很明显，$M$ 主对角线上的值均为 $1$，
+		\textbf{因为每个结点只有唯一的父结点}，
+		这使得每个点的入度均为 $1$（根结点除外）。
+		由于我们按深度排序，
+		因此\textbf{不存在编号大的结点到编号小的结点的边}，
+		这使得 $M$ 是一个上三角矩阵。
+		因此，$M$ 的值为 $1$。
+	\end{proof}
 
-	我们对结点重新标号，按照它们的深度从小到大标号，
-	显然这并不会改变我们的结果。
-
-	设 $M = M_{1, 1}$，很明显，$M$ 主对角线上的值均为 $1$，
-	\textbf{因为每个结点只有唯一的父结点}，
-	这使得每个点的入度均为 $1$（根结点除外）。
-	由于我们按深度排序，
-	因此\textbf{不存在编号大的结点到编号小的结点的边}，
-	这使得 $M$ 是一个上三角矩阵。
-	因此，$M$ 的值为 $0$。
-
-	\bigskip
-
-	\leftline{\heiti {当这张图有 $n - 1$ 条边且弱连通但不是以 $i$ 为根的树形图时}}
+	\subsubsubsection{当这张图有 $n - 1$ 条边且弱连通但不是以 $i$ 为根的树形图时}
 
 	可以证明：如果这张图有 $n - 1$ 条边且弱连通但不是以 $i$ 为根的树形图，
 	那么有：
@@ -609,58 +597,52 @@ int main() { return 0; }
 	\det(M_{i, i}) = 0
 	$$
 
-	\bigskip
+	\begin{proof}
+		如果一张图为树形图，那么入度为 $1$ 的点将会有 $n - 1$ 个，
+		换句话说，入度为 $0$ 的点只有 $1$ 个，即 $i$。
+		若将这张树形图的边任意反向（至少对一条边进行反向），
+		那么一定至少有一个除了 $i$ 之外的点的入度变为 $0$。
+		根据基尔霍夫矩阵的定义，
+		这张图去掉第 $i$ 行的 $n - 1$ 阶主子式的值为 $0$。
+	\end{proof}
 
-	\leftline{证明}
-
-	如果一张图为树形图，那么入度为 $1$ 的点将会有 $n - 1$ 个，
-	换句话说，入度为 $0$ 的点只有 $1$ 个，即 $i$。
-	若将这张树形图的边任意反向（至少对一条边进行反向），
-	那么一定至少有一个除了 $i$ 之外的点的入度变为 $0$。
-	根据基尔霍夫矩阵的定义，
-	这张图去掉第 $i$ 行的 $n - 1$ 阶主子式的值为 $0$。
-
-	\bigskip
-
-	\leftline{\heiti {当这张图不连通时}}
+	\subsubsubsection{当这张图不连通时}
 
 	可以证明：如果这张图不连通，那么它的任意一个 $n - 1$ 阶主子式均为 $0$。
 
-	\bigskip
+	\begin{proof}
+		我们不妨设图被分成了两个连通块。现在我们对这张图进行重编号，
+		显然这不会改变我们的结果。
+		我们令第一个连通块中的点的编号始终小于第二个连通块中点的编号，
+		那么它的基尔霍夫矩阵的大致形态为：
+		\begin{equation*}
+			\begin{vmatrix}
+				a_{1, 1} & a_{1, 2} & a_{1, 3} & 0 & \cdots & 0 & 0 & 0
+				\\
+				a_{2, 1} & a_{2, 2} & a_{2, 3} & 0 & \cdots & 0 & 0 & 0
+				\\
+				a_{3, 1} & a_{3, 2} & a_{3, 3} & 0 & \cdots & 0 & 0 & 0
+				\\
+				0 & 0 & 0 & b_{4, 4} & \cdots & b_{4, n - 2} & b_{4, n - 1} & b_{4, n}
+				\\
+				0 & 0 & 0 & b_{5, 4} & \cdots & b_{5, n - 2} & b_{5, n - 1} & b_{5, n}
+				\\
+				0 & 0 & 0 & b_{6, 4} & \cdots & b_{6, n - 2} & b_{6, n - 1} & b_{6, n}
+				\\
+				\vdots & \vdots & \vdots & \vdots & \ddots &  \vdots & \vdots & \vdots
+				\\
+				0 & 0 & 0 & b_{n, 4} & \cdots & b_{n, n - 2} & b_{n, n - 1} & b_{n, n}
+			\end{vmatrix}
+		\end{equation*}
 
-	\leftline{证明}
+		由于两个连通块之间不存在任何边，
+		因此在行列式中有两个所有元素均为 $0$ 的区域。
 
-	我们不妨设图被分成了两个连通块。现在我们对这张图进行重编号，
-	显然这不会改变我们的结果。
-	我们令第一个连通块中的点的编号始终小于第二个连通块中点的编号，
-	那么它的基尔霍夫矩阵的大致形态为：
-	\begin{equation*}
-		\begin{vmatrix}
-			a_{1, 1} & a_{1, 2} & a_{1, 3} & 0 & \cdots & 0 & 0 & 0
-			\\
-			a_{2, 1} & a_{2, 2} & a_{2, 3} & 0 & \cdots & 0 & 0 & 0
-			\\
-			a_{3, 1} & a_{3, 2} & a_{3, 3} & 0 & \cdots & 0 & 0 & 0
-			\\
-			0 & 0 & 0 & b_{4, 4} & \cdots & b_{4, n - 2} & b_{4, n - 1} & b_{4, n}
-			\\
-			0 & 0 & 0 & b_{5, 4} & \cdots & b_{5, n - 2} & b_{5, n - 1} & b_{5, n}
-			\\
-			0 & 0 & 0 & b_{6, 4} & \cdots & b_{6, n - 2} & b_{6, n - 1} & b_{6, n}
-			\\
-			\vdots & \vdots & \vdots & \vdots & \ddots &  \vdots & \vdots & \vdots
-			\\
-			0 & 0 & 0 & b_{n, 4} & \cdots & b_{n, n - 2} & b_{n, n - 1} & b_{n, n}
-		\end{vmatrix}
-	\end{equation*}
-
-	由于两个连通块之间不存在任何边，
-	因此在行列式中有两个所有元素均为 $0$ 的区域。
-
-	现在我们对行列式进行变换，把所有 $a$ 所在的列加到 $a$ 所在的第一列，
-	同理，把 $b$ 所在的所有列加到 $b$ 所在的第一列，
-	那么这个行列式会有两个全是 $0$ 的列。
-	因此，任何一个 $n - 1$ 阶主子式的值均为 $0$。
+		现在我们对行列式进行变换，把所有 $a$ 所在的列加到 $a$ 所在的第一列，
+		同理，把 $b$ 所在的所有列加到 $b$ 所在的第一列，
+		那么这个行列式会有两个全是 $0$ 的列。
+		因此，任何一个 $n - 1$ 阶主子式的值均为 $0$。
+	\end{proof}
 
 	\subsubsection{关联矩阵}
 
@@ -671,7 +653,7 @@ int main() { return 0; }
 	\textbf{第 $b$ 行等于 $-1$}，
 	其余行等于 $0$。
 	这样，我们得到了一个每一列有一行为 $1$，一行为 $-1$，其余行为 $0$ 的矩阵。
-	
+
 	我们定义图 $G$ 的\textbf{\uline{转置关联矩阵~$B^T$}} 为一个 $m \times n$ 的矩阵，
 	其中每一列代表一个点，每一行代表一条边。
 	\textbf{注意\uline{转置关联矩阵}并不是\uline{关联矩阵}的转置}。
@@ -728,7 +710,7 @@ int main() { return 0; }
 
 	稍微推算一下即可发现，
 	$K$ 去掉第 $r$ 行的 $n - 1$ 阶主子式等于
-	去掉第 $r$ 行的 $B$（记作 $B_r$） 
+	去掉第 $r$ 行的 $B$（记作 $B_r$）
 	与去掉第 $r$ 列的 $B^T$（记作 $B^T_r$）的乘积，
 	即：
 	$$
@@ -742,14 +724,14 @@ int main() { return 0; }
 	那么 $\det(B B_r)$ 的值是 $0$ 吗？
 	Binet-Cauchy 公式已经解决了这个问题：
 	一个 $N \times M$ 的矩阵与一个 $M \times N$ 的矩阵相乘，
-	若 $M < N$，则它们的乘积的行列式为 $0$。 
+	若 $M < N$，则它们的乘积的行列式为 $0$。
 
 	当 $m \ge n - 1$ 时，我们仍然应用 Binet-Cauchy 公式去解决它。
 	显然，总共有 $\mathrm{C}_{m}^{n - 1}$ 个求和的项，
 	我们考虑每一项代表了什么。
 	显然，我们可以看作在 $m$ 条边中选择其中 $n - 1$ 条边
 	来构成一个基尔霍夫矩阵的 $n - 1$ 阶主子式。
-	
+
 	\bigskip
 
 	至此，矩阵树定理的证明已经基本完成了。
@@ -760,7 +742,7 @@ int main() { return 0; }
 	对最终答案有 $1$ 的贡献；
 	否则这 $n - 1$ 条边构成的图要么不连通（即忽略边的方向后存在环），
 	要么不构成树形图结构，对答案的贡献为 $0$。
-	
+
 	\bigskip
 
 	{\kaishu {证毕。}}
@@ -768,7 +750,7 @@ int main() { return 0; }
 	\subsection{应用举例}
 
 	\subsubsection{无向图的生成树计数}
-	
+
 	由于是无向图，我们只需要将每条无向边拆成两条有向边即可。
 	显然，
 	我们以任意一个结点为根求出的树形图数量就是这张图的生成树数量。
@@ -783,61 +765,57 @@ int main() { return 0; }
 	过去，我们用 Prüfer 序列的性质推导出这个结果。
 	现在我们可以用矩阵树定理来解决这个问题。
 
-	\bigskip
+	\begin{proof}
+		无向完全图的基尔霍夫矩阵为：
+		\begin{equation*}
+			\begin{vmatrix}
+				n - 1 & -1 & -1 & \cdots & -1
+				\\
+				-1 & n - 1 & -1 & \cdots & -1
+				\\
+				-1 & -1 & n - 1 & \cdots & -1
+				\\
+				\vdots & \vdots & \vdots & \ddots & \vdots
+				\\
+				-1 & -1 & -1 & \cdots & n - 1
+			\end{vmatrix}
+		\end{equation*}
 
-	无向完全图的基尔霍夫矩阵为：
-	\begin{equation*}
-		\begin{vmatrix}
-			n - 1 & -1 & -1 & \cdots & -1
-			\\
-			-1 & n - 1 & -1 & \cdots & -1
-			\\
-			-1 & -1 & n - 1 & \cdots & -1
-			\\
-			\vdots & \vdots & \vdots & \ddots & \vdots
-			\\
-			-1 & -1 & -1 & \cdots & n - 1
-		\end{vmatrix}
-	\end{equation*}
+		其 $n - 1$ 阶主子式的大致形态与它相同。
+		发现，现在每一列的和均为 $1$，
+		我们将所有其余行都加到第一行，则第一行的所有值都变成了 $1$：
+		\begin{equation*}
+			\begin{vmatrix}
+				1 & 1 & 1 & \cdots & 1
+				\\
+				-1 & n - 1 & -1 & \cdots & -1
+				\\
+				-1 & -1 & n - 1 & \cdots & -1
+				\\
+				\vdots & \vdots & \vdots & \ddots & \vdots
+				\\
+				-1 & -1 & -1 & \cdots & n - 1
+			\end{vmatrix}
+		\end{equation*}
 
-	其 $n - 1$ 阶主子式的大致形态与它相同。
-	发现，现在每一列的和均为 $1$，
-	我们将所有其余行都加到第一行，则第一行的所有值都变成了 $1$：
-	\begin{equation*}
-		\begin{vmatrix}
-			1 & 1 & 1 & \cdots & 1
-			\\
-			-1 & n - 1 & -1 & \cdots & -1
-			\\
-			-1 & -1 & n - 1 & \cdots & -1
-			\\
-			\vdots & \vdots & \vdots & \ddots & \vdots
-			\\
-			-1 & -1 & -1 & \cdots & n - 1
-		\end{vmatrix}
-	\end{equation*}
+		我们再将其余行全部加上第一行，
+		则其余行只有主对角线上有值 $n$：
+		\begin{equation*}
+			\begin{vmatrix}
+				1 & 1 & 1 & \cdots & 1
+				\\
+				0 & n & 0 & \cdots & 0
+				\\
+				0 & 0 & n & \cdots & 0
+				\\
+				\vdots & \vdots & \vdots & \ddots & \vdots
+				\\
+				0 & 0 & 0 & \cdots & n
+			\end{vmatrix}
+		\end{equation*}
 
-	我们再将其余行全部加上第一行，
-	则其余行只有主对角线上有值 $n$：
-	\begin{equation*}
-		\begin{vmatrix}
-			1 & 1 & 1 & \cdots & 1
-			\\
-			0 & n & 0 & \cdots & 0
-			\\
-			0 & 0 & n & \cdots & 0
-			\\
-			\vdots & \vdots & \vdots & \ddots & \vdots
-			\\
-			0 & 0 & 0 & \cdots & n
-		\end{vmatrix}
-	\end{equation*}
-
-	显然其值为 $n^{n - 2}$。
-
-	\bigskip
-
-	{\kaishu 证毕。}
+		显然其值为 $n^{n - 2}$。
+	\end{proof}
 
 	\section{例题}
 
@@ -862,11 +840,13 @@ int main() { return 0; }
 	因此最终的结果等于主对角线上的元素\textbf{在模意义下}的乘积。
 	由于模意义下的高斯消元是正确的，
 	因此直接在模意义下进行行列式初等变换是正确的。
+	再次提醒，行列式交换两行时需要变号，
+	因此必须记录交换次数的奇偶性。
 
 	可以验证 $10^4 + 7$ 是一个质数，
 	因此我们可以求出它的逆元，
 	用乘以逆元的方式代替除法即可。
 
-	
+
 
 \end{document}
