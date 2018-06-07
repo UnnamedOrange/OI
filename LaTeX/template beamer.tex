@@ -1,0 +1,41 @@
+\documentclass[9pt, UTF8]{beamer} % 加入 handout 选项禁用 pause
+\usepackage{ctex}
+\usepackage{hyperref}	% 用于交叉引用
+\usepackage{setspace}	% 用于设置行间距
+\usepackage{listings}	% 用于代码高亮
+\usepackage{xcolor}		% 用于处理颜色
+\usepackage{ulem}		% 用于各种线
+\usepackage{amsmath}	% 用于数学公式（如 \begin{align}）
+\usepackage{amsthm}		% 用于数学版式（如 \newtheorem{cmd}{caption}）
+\usepackage{booktabs}	% 用于表格画线
+\usepackage{graphicx}	% 用于插入图片
+
+\usetheme{Berlin}
+\usecolortheme{beaver}
+
+\newcommand \insertsubject {{Subject}}
+
+\hypersetup
+{
+	pdfauthor = Orange,
+	pdftitle = \insertsubject,
+	pdfsubject = \insertsubject,
+	pdfkeywords = \insertsubject
+}
+
+\title{\insertsubject}
+\author{Orange}
+\institute{CQ No.11 High}
+\date{\today}
+
+\newtheorem*{bbox}{}
+
+\begin{document}
+
+	\setlength{\parindent}{2em} % 中文缩进两个汉字位
+
+	\begin{frame}
+		\titlepage
+	\end{frame}
+
+\end{document}

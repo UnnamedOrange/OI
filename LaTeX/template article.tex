@@ -1,0 +1,34 @@
+\documentclass[UTF8]{article}
+\usepackage{ctex}
+\usepackage{hyperref}	% 用于交叉引用
+\usepackage{setspace}	% 用于设置行间距
+\usepackage{listings}	% 用于代码高亮
+\usepackage{xcolor}		% 用于处理颜色
+\usepackage{ulem}		% 用于各种线
+\usepackage{amsmath}	% 用于数学公式（如 \begin{align}）
+\usepackage{amsthm}		% 用于数学版式（如 \newtheorem{cmd}{caption}）
+\usepackage{booktabs}	% 用于表格画线
+\usepackage{graphicx}	% 用于插入图片
+\usepackage[top = 0.8in, bottom = 0.8in, left = 0.8in, right = 0.8in]{geometry} %设置页边距
+
+\newcommand \insertsubject {{Subject}}
+
+\hypersetup
+{
+	pdfauthor = Orange,
+	pdftitle = \insertsubject,
+	pdfsubject = \insertsubject,
+	pdfkeywords = \insertsubject
+}
+
+\title{\insertsubject}
+\author{Orange}
+\date{\today}
+
+\begin{document}
+
+	\maketitle
+
+
+
+\end{document}
