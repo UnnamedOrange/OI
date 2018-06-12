@@ -472,11 +472,11 @@ void cdq(int l, int r)
 ​	只要满足了这两个特点，CDQ 分治就是有效的。像上面这个例子，如果我们不提前计算第一个二分之一对第二个二分之一的贡献，我们就不知道第三个四分之一对第四个四分之一的贡献会是多少，因此我们必须改变计算顺序。只需要**左右分别**进行快速排序，就能像归并排序后一样处理贡献了。时间复杂度为 $O(n \log^2 n)$。
 
 ```flow
-left=>operation: 递归处理左边
+left=>operation: 递归处理左边（目的是算出左边的答案）
 sort1=>operation: 在临时数组中对左边排序
 sort2=>operation: 在临时数组中对右边排序
-merge=>operation: 在临时数组中用类似于归并排序的方法计算贡献
-right=>operation: 递归处理右边
+merge=>operation: 在临时数组中用类似于归并排序的方法计算左边对右边的贡献
+right=>operation: 递归处理右边（右边只剩下内部的贡献未计算）
 
 left->sort1->sort2->merge->right
 ```
@@ -499,16 +499,8 @@ left->sort1->sort2->merge->right
 
 ​	见[题解](https://blog.csdn.net/lycheng1215/article/details/80515761)。
 
-###### 解决三维偏序
-
-​	忽略时间复杂度，我们可以直接使用三维偏序：方法与园丁的烦恼相同，只不过拆分的东西变多了：
-$$
-ans = f(x_2, y_2, z_2) - \cdots + \cdots - \cdots
-$$
-​	大概的意思是，用容斥原理，一个询问要拆分成七个部分，时间复杂度为 $O(n \log^2 n)$，只能得到 $70$ 分。不过强烈建议用这个方法写一遍代码。
+###### 参考代码
 
 ```c++
 // 见 "Source Code\CDQ 分治"
 ```
-
-​	这道题的正解需要结合 Trie 树本身来解决：对于第一棵 Trie 树，可以看作是从下往上合并而来，
