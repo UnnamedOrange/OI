@@ -87,13 +87,13 @@ struct Query
 // 上下左右
 const int vecx[] = { -1, 1, 0, 0 };
 const int vecy[] = { 0, 0, -1, 1 };
-const int func[][4] = {
-	{ 0, 1, 2, 3 },
-	{ 3, 2, 1, 0 },
-	{ 2, 3, 0, 1 } };
+const int func[][4] =
+{ { 0, 1, 2, 3 },
+{ 3, 2, 1, 0 },
+{ 2, 3, 0, 1 } };
 
 #define RunInstance(x) delete new x
-struct brute
+struct brute // invalid
 {
 	int mirror[maxn][maxn]; // 1 - 左斜，2 - 右斜
 	int ans[maxn * maxn];
@@ -183,6 +183,100 @@ struct brute
 		}
 	}
 };
+struct work
+{
+	int count1[1 << 5];
+	int colum[8][1 << 5];
+
+	int f[8][1 << 5][36];
+	int ans[36];
+
+	void solve()
+	{
+		int U = 1 << n;
+		for (int i = 1; i <= m; i++)
+		{
+			for (int S = 0; S < U; S++)
+			{
+				bool bOk = true;
+				if (count1[S] & 1) bOk = false;
+				for (int j = 1; bOk && j <= n; j++)
+					if ((S & (1 << (j - 1))) && !can[j][i])
+					{
+						bOk = false;
+						break;
+					}
+				if (!bOk) continue;
+
+				int t = 0;
+				int sig = -1;
+				for (int j = 1; j <= n; j++)
+				{
+					if (S & (1 << (j - 1)))
+					{
+						t += sig * j;
+						sig = -sig;
+					}
+				}
+				colum[i][S] = t;
+			}
+		}
+
+		memset(f, 0xc0, sizeof(f));
+		f[0][0][0] = 0;
+		for (int i = 1; i <= m; i++)
+		{
+			for (int S = 0; S < U; S++)
+			{
+				bool bOk = true;
+				if (count1[S] & 1) bOk = false;
+				for (int j = 1; bOk && j <= n; j++)
+					if ((S & (1 << (j - 1))) && !can[j][i])
+					{
+						bOk = false;
+						break;
+					}
+				if (!bOk) continue;
+
+				for (int S0 = 0; S0 < U; S0++)
+				{
+					int sum = colum[i][S];
+					for (int j = 1; j <= n; j++)
+						if (S & (1 << (j - 1)))
+							sum += (S0 & (1 << (j - 1))) ? i : -i;
+					for (int k = count1[S], to = n * m; k <= to; k++)
+					{
+						f[i][S0 ^ S][k] = std::max(f[i][S0 ^ S][k],
+							f[i - 1][S0][k - count1[S]] + sum);
+					}
+				}
+			}
+		}
+		ans[0] = 0;
+		for (int i = 1, to = n * m; i <= to; i++)
+			ans[i] = std::max(ans[i - 1], f[m][0][i]);
+		int t = 4 * n * m;
+		for (int i = 0, to = n * m; i <= to; i++)
+		{
+			printOut(t - (ans[i] << 1));
+			putchar(' ');
+		}
+		putchar('\n');
+	}
+
+	work()
+	{
+		count1[0] = 0;
+		int U = 1 << 5;
+		for (int S = 1; S < U; S++)
+			count1[S] = count1[S ^ (S & -S)] + 1;
+		for (int i = 1; i <= T; i++)
+		{
+			querys[i].release();
+			solve();
+		}
+	}
+};
 
 void run()
 {
@@ -193,8 +287,7 @@ void run()
 	for (int i = 1; i <= T; i++)
 		maxt = std::max(maxt, querys[i].n * querys[i].m);
 
-	if (T <= 5 && maxt <= 16)
-		RunInstance(brute);
+	RunInstance(work);
 }
 
 int main()
