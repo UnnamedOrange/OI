@@ -59,6 +59,7 @@ using Graph = std::vector<std::vector<int>>;
 Graph G;
 
 int inDegree[maxn];
+int from[maxn];
 
 void run()
 {
@@ -80,32 +81,45 @@ void run()
 	for (int i = 1; i <= m; i++)
 		inDegree[origin[i].second]++;
 
-	std::priority_queue<int, std::vector<int>, std::greater<int>> pq;
+	std::set<int> set;
 	for (int i = 1; i <= n; i++)
 		if (!inDegree[i])
-			pq.push(i);
+			set.insert(i);
 
+	int t = k;
 	std::vector<std::pair<int, int>> ans;
 	std::vector<int> topo;
-	int t = 0;
-	for (int i = 1; i <= n; i++)
+	while (set.size())
 	{
-		while (k && pq.size() > 1)
+		int vertex = *set.begin();
+		int c = 0;
+		for (auto it = set.begin(); it != set.end(); it++)
 		{
-			int top = pq.top();
-			pq.pop();
-			G[pq.top()].push_back(top);
-			inDegree[top]++;
-			ans.push_back(std::make_pair(pq.top(), top));
-			k--;
-			t++;
+			vertex = *it;
+			if (c == t && !from[*it])
+				break;
+			if (!from[*it]) c++;
 		}
-		int node = pq.top();
-		pq.pop();
-		topo.push_back(node);
-		for (int to : G[node])
+		for (auto it = set.begin(); *it != vertex; it = set.begin())
+		{
+			auto next = it;
+			next++;
+			G[*next].push_back(*it);
+			if (!from[*it]) t--;
+			from[*it] = *next;
+			inDegree[*it]++;
+			set.erase(it);
+		}
+		set.erase(set.begin());
+		if (from[vertex])
+			ans.push_back(std::make_pair(from[vertex], vertex));
+		topo.push_back(vertex);
+		for (int i = 0; i < G[vertex].size(); i++)
+		{
+			int to = G[vertex][i];
 			if (!(--inDegree[to]))
-				pq.push(to);
+				set.insert(to);
+		}
 	}
 	for (int v : topo)
 	{
@@ -113,7 +127,7 @@ void run()
 		putchar(' ');
 	}
 	putchar('\n');
-	printOut(t);
+	printOut(k - t);
 	putchar('\n');
 	for (auto e : ans)
 	{
