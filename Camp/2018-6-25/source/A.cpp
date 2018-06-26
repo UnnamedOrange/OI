@@ -75,6 +75,50 @@ struct Ins
 #define RunInstance(x) delete new x
 struct brute
 {
+	static const int maxN = 10005;
+	int dividend[maxN];
+	int divisor[maxN];
+	int quotient[maxN];
+	void Div()
+	{
+		dividend[dividend[0] + 1] = 0;
+		quotient[0] = dividend[0] - divisor[0] + 1;
+		for (int i = dividend[0]; i >= divisor[0]; i--)
+		{
+			int& ans = quotient[i - divisor[0] + 1];
+			ans = 0;
+			while (ans < 9)
+			{
+				for (int j = 1; j <= divisor[0]; j++)
+					dividend[i - divisor[0] + j] -= divisor[j];
+				for (int j = 1; j <= divisor[0]; j++)
+					if (dividend[i - divisor[0] + j] < 0)
+					{
+						dividend[i - divisor[0] + j] += 10;
+						dividend[i - divisor[0] + j + 1]--;
+					}
+				if (dividend[i + 1] < 0)
+				{
+					for (int j = 1; j <= divisor[0]; j++)
+					{
+						dividend[i - divisor[0] + j] += divisor[j];
+						if (dividend[i - divisor[0] + j] >= 10)
+						{
+							dividend[i - divisor[0] + j] -= 10;
+							dividend[i - divisor[0] + j + 1]++;
+						}
+					}
+					break;
+				}
+				ans++;
+			}
+		}
+		while (quotient[0] > 1 && !quotient[quotient[0]])
+			quotient[0]--;
+		while (dividend[0] > 1 && !dividend[dividend[0]])
+			dividend[0]--;
+	}
+
 	brute()
 	{
 		for (int i = 1; i <= m; i++)
@@ -88,18 +132,24 @@ struct brute
 			{
 				if (ins.x > n)
 				{
-					for (int j = 1; j <= n; j++)
-						putchar(val[j] + '0');
+					LL ans = 0;
+					for (int i = 1; i <= n; i++)
+						((ans *= 10) += val[i]) %= mod;
+					printOut(ans);
 				}
 				else
 				{
-					LL num = 0;
-					for (int i = 1; i <= n; i++)
-						(num *= 10) += val[i];
-					LL q = 0;
+					dividend[0] = n;
+					for (int i = n; i; i--)
+						dividend[n - i + 1] = val[i];
+					divisor[0] = ins.x;
 					for (int i = 1; i <= ins.x; i++)
-						(q *= 10) += ins.a;
-					printOut(num % q % mod);
+						divisor[i] = ins.a;
+					Div();
+					LL ans = 0;
+					for (int i = dividend[0]; i; i--)
+						((ans *= 10) += dividend[i]) %= mod;
+					printOut(ans);
 				}
 			}
 		}
@@ -120,7 +170,7 @@ void run()
 	for (int i = 1; i <= m; i++)
 		inss[i].read();
 
-	if (n <= 10)
+	if (n <= 10000)
 		RunInstance(brute);
 }
 
