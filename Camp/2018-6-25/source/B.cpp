@@ -108,7 +108,7 @@ public:
 	{
 		versions.push_back(size++);
 		power[0] = 1;
-		for (int i = 1; i <= n; i++)
+		for (int i = 1; i <= int(1e5); i++)
 			power[i] = power[i - 1] * 1313131;
 	}
 	void SetBound(int b) { bound = b; }
@@ -123,7 +123,11 @@ public:
 	}
 	bool comp(int l1, int r1, int l2, int r2) const
 	{
-		bool temp = l1 < l2;
+		bool temp = l1 > l2;
+		if (l1 == 2 && r1 == 11 && l2 == 1 && r2 == 10)
+			int a = 0;
+		if (l2 == 2 && r2 == 11 && l1 == 1 && r1 == 10)
+			int a = 0;
 		l1 = versions[l1 - 1];
 		r1 = versions[r1];
 		l2 = versions[l2 - 1];
@@ -152,7 +156,7 @@ public:
 		}
 		if (nodes[r1].hash - nodes[l1].hash !=
 			nodes[r2].hash - nodes[l2].hash)
-			return nodes[r1].hash - nodes[l1].hash >
+			return nodes[r1].hash - nodes[l1].hash <
 			nodes[r2].hash - nodes[l2].hash;
 		return temp;
 	}
@@ -162,8 +166,9 @@ class SegTree
 {
 	struct Node
 	{
-		int l1, l2, r1, r2;
-		LL sl, sr, sx;
+		int l1, l2, r1, r2; // 最小、最大左端点，最小、最大右端点
+		LL sl, sr; // 左端点之和，右端点之和
+		int sx; // l <= r 的个数
 	} nodes[maxn * 2];
 	static inline int code(int l, int r)
 	{
@@ -190,23 +195,35 @@ class SegTree
 		int mid = (l + r) >> 1;
 		Node& lc = nodes[code(l, mid)];
 		Node& rc = nodes[code(mid + 1, r)];
-		if (t.l1 > lc.l1)
+		if (t.l1 > lc.l2) // 不合常理，说明是从上往下的标记
 		{
 			lc.sl = (LL)t.l1 * lc.sx;
 			lc.l1 = lc.l2 = t.l1;
 		}
-		if (t.l1 > rc.l1)
+		if (t.l1 > rc.l2)
 		{
-
+			rc.sl = (LL)t.l1 * rc.sx;
+			rc.l1 = rc.l2 = t.l1;
+		}
+		if (t.r2 < lc.r1)
+		{
+			lc.sr = (LL)t.r2 * lc.sx;
+			lc.r1 = lc.r2 = t.r2;
+		}
+		if (t.r2 < rc.r1)
+		{
+			rc.sr = (LL)t.r2 * rc.sx;
+			rc.r1 = rc.r2 = t.r2;
 		}
 	}
 
 	int g_L, g_R, g_Pos, g_Val, g_Val2;
 	LL query_(int l, int r)
 	{
+		Node& t = nodes[code(l, r)];
+		if (!t.sx) return 0;
 		if (g_L <= l && r <= g_R)
 		{
-			Node& t = nodes[code(l, r)];
 			if (t.l1 >= g_Pos)
 				return t.sr - t.sl + t.sx;
 			if (t.r2 < g_Pos)
@@ -223,7 +240,35 @@ class SegTree
 	}
 	void modify_(int l, int r)
 	{
-		// TODO
+		Node& t = nodes[code(l, r)];
+		if (!t.sx) return;
+		if (g_L <= l && r <= g_R)
+		{
+			bool bOk = true;
+			if (t.r2 < g_Val || t.l1 > g_Val2)
+				t.sx = t.sl = t.sr = 0;
+			else if (t.l1 >= g_Val && t.r2 <= g_Val2) {}
+			else if (t.l2 <= g_Val && t.r1 >= g_Val && t.r2 <= g_Val2)
+				t.sl = (LL)g_Val * t.sx;
+			else if (t.l1 >= g_Val && t.l2 <= g_Val2 && t.r1 >= g_Val2)
+				t.sr = (LL)g_Val2 * t.sx;
+			else if (t.l2 <= g_Val && g_Val2 <= t.r1)
+			{
+				t.sl = (LL)g_Val * t.sx;
+				t.sr = (LL)g_Val2 * t.sx;
+			}
+			else
+				bOk = false;
+
+			if (bOk)
+			{
+				t.l1 = std::max(t.l1, g_Val);
+				t.l2 = std::max(t.l2, g_Val);
+				t.r1 = std::min(t.r1, g_Val2);
+				t.r2 = std::min(t.r2, g_Val2);
+				return;
+			} // 否则暴力下去改
+		}
 		pushdown(l, r);
 		int mid = (l + r) >> 1;
 		if (g_L <= mid) modify_(l, mid);
@@ -241,6 +286,7 @@ public:
 			t.r1 = t.r2 = n;
 			t.sl = l;
 			t.sr = n;
+			t.sx = 1;
 			return;
 		}
 		int mid = (l + r) >> 1;
@@ -263,12 +309,37 @@ public:
 		g_R = r;
 		g_Val = valL;
 		g_Val2 = valR;
-		modify_(l, r);
+		modify_(1, n);
 	}
+
+private:
 	// 计算出区间的左右端点
+	std::pair<int, int> ret;
+	void wander(int l, int r)
+	{
+		Node& t = nodes[code(l, r)];
+		if (t.sx < p)
+		{
+			p -= t.sx;
+			return;
+		}
+		if (l == r)
+		{
+			p--;
+			ret = std::make_pair(l, t.r2);
+			return;
+		}
+		pushdown(l, r);
+		int mid = (l + r) >> 1;
+		wander(l, mid);
+		if (!p) return;
+		wander(mid + 1, r);
+	}
+public:
 	std::pair<int, int> wander()
 	{
-
+		wander(1, n);
+		return ret;
 	}
 };
 
@@ -294,7 +365,7 @@ struct brute
 		std::partial_sort(pairs.begin(), pairs.begin() + q, pairs.end(),
 			[&](const std::pair<int, int>& a, const std::pair<int, int>& b)
 		{
-			return fst.comp(a.first, a.second, b.first, b.second);
+			return fst.comp(b.first, b.second, a.first, a.second);
 		});
 
 		for (int i = p - 1; i < q; i++)
@@ -317,18 +388,22 @@ struct work
 		HeapNode(int l, int r) : l(l), r(r) {}
 		bool operator<(const HeapNode& b) const
 		{
-			return !fst.comp(l, r, b.l, b.r);
+			return fst.comp(l, r, b.l, b.r);
 		}
 	};
 
 	SegTree st;
 	LL check(int num, int s)
 	{
+		if (s > poss[num].size() - 1)
+			return 0;
 		LL ret = 0;
 		for (int i = 0, size = poss[num].size(); i < size; i++)
 		{
-			int L = i ? poss[num][i - 1] : 1;
-			int R = poss[num][i] - 1;
+			int L = (i ? poss[num][i - 1] : 0) + 1;
+			int R = std::min(poss[num][i], n);
+			if (L > R || L > n)
+				continue;
 			if (i + s - 1 >= size - 1)
 				break;
 			int least;
@@ -336,7 +411,8 @@ struct work
 				least = 1;
 			else
 				least = poss[num][i + s - 1];
-			ret += st.query(L, R, least);
+			if (L <= R)
+				ret += st.query(L, R, least);
 		}
 		return ret;
 	}
@@ -351,41 +427,44 @@ struct work
 
 		q = q - p + 1;
 		std::priority_queue<HeapNode> pq;
+		st.build(1, n);
 		for (int i = 1; i <= bound; i++)
 		{
 			poss[i].push_back(n + 1);
 
 			int l = 0, r = poss[i].size();
-			while (r - l > 0)
+			while (r - l > 1)
 			{
 				int mid = (l + r) >> 1;
 				if (check(i, mid) < p)
-					l = mid + 1;
-				else
 					r = mid;
+				else
+					l = mid;
 			}
-			if (l < poss[i].size())
+			if (l < poss[i].size() - 1)
 				p -= check(i, l + 1); // 减去包含了大于 l 个 i 的区间
 			sel[i] = l;
 			for (int j = 0, size = poss[i].size(); j < size; j++)
 			{
+				int L = (j ? poss[i][j - 1] : 0) + 1;
+				int R = std::min(poss[i][j], n);
+				if (L > R || L > n)
+					continue;
+
 				int valL, valR;
 				if (j + l - 1 < 0)
 					valL = 1;
-				else if (j + l - 1 >= size)
+				else if (j + l - 1 >= size - 1)
 					valL = n + 1;
 				else
 					valL = poss[i][j + l - 1];
 
-				if (j + l >= size)
+				if (j + l >= size - 1)
 					valR = n;
 				else
 					valR = poss[i][j + l] - 1;
 
-				int L = j ? poss[i][j - 1] : 1;
-				int R = poss[i][j] - 1;
-				if (L <= R)
-					st.modify(L, R, valL, valR);
+				st.modify(L, R, valL, valR);
 			}
 		}
 
@@ -401,16 +480,16 @@ struct work
 		for (int i = 1; i <= n; i++)
 			if (i != node.l)
 			{
-				int l = i, r = n + 1;
-				while (r - l > 0)
+				int l = i - 1, r = n + 1;
+				while (r - l > 1)
 				{
 					int mid = (l + r) >> 1;
-					if (node < HeapNode(i, mid)) // node 严格大于
-						l = mid + 1;
-					else
+					if (node < HeapNode(i, mid))
 						r = mid;
+					else
+						l = mid;
 				}
-				if (l <= n)
+				if (l >= i)
 					pq.push(HeapNode(i, l));
 			}
 		pq.push(node);
@@ -439,10 +518,7 @@ void run()
 		a[i] = readIn();
 	discretize();
 
-	if (n <= 1000)
-		RunInstance(brute);
-	else
-		RunInstance(work);
+	RunInstance(work);
 }
 
 int main()
