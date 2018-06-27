@@ -73,7 +73,7 @@ struct brute
 	int ans[maxn];
 	int f[maxn];
 
-	int initFailure(const char* s, int n)
+	void initFailure(const char* s, int n)
 	{
 		f[0] = f[1] = 0;
 		int pre = 0;
@@ -111,6 +111,177 @@ struct brute
 			printOut(ans[i]);
 	}
 };
+struct work
+{
+	static const int sqrtN = 512;
+	int N;
+	int inBlock[maxn];
+	int lBegin[maxn]{};
+	int rEnd[maxn];
+	void initBlocks()
+	{
+		N = (n - 1) / sqrtN + 1;
+		for (int i = 1; i <= n; i++)
+		{
+			int ib = inBlock[i] = (i - 1) / sqrtN;
+			if (!lBegin[ib])
+				lBegin[ib] = i;
+			rEnd[ib] = i;
+		}
+	}
+	ULL power[maxn];
+	ULL hashVal[maxn];
+	void initHash()
+	{
+		power[0] = 1;
+		for (int i = 1; i <= n; i++)
+			power[i] = power[i - 1] * 131;
+		hashVal[0] = 0;
+		for (int i = 1; i <= n; i++)
+			hashVal[i] = hashVal[i - 1] * 131 + str[i];
+	}
+	bool comp(int l1, int r1, int l2, int r2)
+	{
+		return hashVal[r1] - power[r1 - l1 + 1] * hashVal[l1 - 1] ==
+			hashVal[r2] - power[r2 - l2 + 1] * hashVal[l2 - 1];
+	}
+	std::vector<std::vector<int>> offlineQuery;
+
+	int ans[maxn]{};
+	int LCP[maxn];
+	int next[maxn];
+	int LCS[maxn];
+
+	std::vector<std::vector<int>> offlineLeft;
+	struct TIB // note：变形的 BIT，求后缀最小值
+	{
+		int c[maxn];
+		TIB()
+		{
+			for (int i = 0; i < maxn; i++)
+				c[i] = INT_MAX;
+		}
+		static inline int lowbit(int x) { return x & -x; }
+		void modify(int pos, int val)
+		{
+			while (pos)
+			{
+				c[pos] = std::min(c[pos], val);
+				pos ^= lowbit(pos);
+			}
+		}
+		int query(int pos)
+		{
+			int ret = INT_MAX;
+			while (pos <= n)
+			{
+				ret = std::min(ret, c[pos]);
+				pos += lowbit(pos);
+			}
+			return ret;
+		}
+		void clear()
+		{
+			for (int i = 0; i < maxn; i++)
+				c[i] = INT_MAX;
+		}
+	} bit;
+
+	work()
+	{
+		initBlocks();
+		initHash();
+		offlineQuery.resize(n + 1);
+		for (int i = 1; i <= q; i++)
+			offlineQuery[querys[i].l].push_back(i);
+		for (int i = 1; i <= q; i++)
+		{
+			const Query& Q = querys[i];
+			for (int j = 1, to = std::min(rEnd[inBlock[Q.l]] - Q.l + 1, Q.r - Q.l); j <= to; j++)
+				if (comp(Q.l, Q.l + j - 1, Q.r - j + 1, Q.r))
+					ans[i] = j;
+		}
+
+		for (int i = 0; i < N - 1; i++)
+		{
+			int begin, length;
+			begin = lBegin[i + 1];
+			length = n - rEnd[i];
+			LCP[0] = length;
+			LCP[1] = 0;
+			while (begin + 1 + LCP[1] <= n && str[begin + LCP[1]] == str[begin + 1 + LCP[1]])
+				LCP[1]++;
+			int pos = 1;
+			for (int j = 2; j < length; j++)
+			{
+				if (pos + LCP[pos] > j + LCP[j - pos])
+					LCP[j] = LCP[j - pos];
+				else
+				{
+					LCP[j] = std::max(0, pos + LCP[pos] - j);
+					while (begin + j + LCP[j] <= n && str[begin + LCP[j]] == str[begin + j + LCP[j]])
+						LCP[j]++;
+					pos = j;
+				}
+			}
+
+			begin = rEnd[i];
+			length = rEnd[i] - lBegin[i] + 1;
+			next[0] = length;
+			next[1] = 0;
+			while (begin - 1 - next[1] >= lBegin[i] && str[begin - next[1]] == str[begin - 1 - next[1]])
+				next[1]++;
+			pos = 1;
+			for (int j = 2; j < length; j++)
+			{
+				if (pos + next[pos] > j + next[j - pos])
+					next[j] = next[j - pos];
+				else
+				{
+					next[j] = std::max(0, pos + next[pos] - j);
+					while (begin - j - next[j] >= lBegin[i] && str[begin - next[j]] == str[begin - j - next[j]])
+						next[j]++;
+					pos = j;
+				}
+			}
+
+			LCS[0] = 0;
+			while (begin - LCS[0] >= lBegin[i] && n - LCS[0] > 0 && str[n - LCS[0]] == str[begin - LCS[0]])
+				LCS[0]++;
+			pos = 0;
+			for (int j = 1; j < n; j++)
+			{
+				if (j - pos < rEnd[i] - lBegin[i] + 1 && pos + LCS[pos] > j + next[j - pos]) // note：必须写前句
+					LCS[j] = next[j - pos];
+				else
+				{
+					LCS[j] = std::max(0, pos + LCS[pos] - j);
+					while (begin - LCS[j] >= lBegin[i] && n - j - LCS[j] > 0 && str[n - j - LCS[j]] == str[begin - LCS[j]])
+						LCS[j]++;
+					pos = j;
+				}
+			}
+
+			offlineLeft.clear();
+			offlineLeft.resize(rEnd[i] - lBegin[i] + 2);
+			length = n - rEnd[i];
+			for (int j = 0; j < length; j++)
+				offlineLeft[LCS[j]].push_back(n - j);
+			bit.clear();
+			LCP[n - lBegin[i + 1] + 1] = 0; // note：边界情况
+			for (int j = rEnd[i] - lBegin[i] + 1; j; j--)
+			{
+				for (auto k : offlineLeft[j])
+					bit.modify(k + LCP[k - lBegin[i + 1] + 1], k);
+
+				for (auto k : offlineQuery[lBegin[i + 1] - j])
+					ans[k] = std::max(ans[k], querys[k].r - (bit.query(querys[k].r) - j));
+			}
+		}
+		for (int i = 1; i <= q; i++)
+			printOut(ans[i]);
+	}
+};
 
 void run()
 {
@@ -125,8 +296,7 @@ void run()
 	for (int i = 1; i <= q; i++)
 		querys[i].read();
 
-	if (n <= 10000)
-		RunInstance(brute);
+	RunInstance(work);
 }
 
 int main()
