@@ -52,118 +52,163 @@ void printOut(INT_PUT x)
 	do putchar(buffer[--length]); while (length);
 }
 
-#define DefinePoint(name)\
-struct name\
-{\
-	double x, y;\
-	name() {}\
-	name(double x, double y) : x(x), y(y) {}\
+struct Point
+{
+	LL x, y;
+	int idx;
+	Point() = default;
+	Point(LL x, LL y) : x(x), y(y) {}
+	void read()
+	{
+		x = readIn();
+		y = readIn();
+	}
+	bool operator<(const Point& b) const
+	{
+		if (x != b.x) return x < b.x;
+		return y < b.y;
+	}
 };
-DefinePoint(Point)
-DefinePoint(Vector)
-int dcmp(double x)
-{
-	const double EPS = 1e-6;
-	if (std::abs(x) <= EPS)
-		return 0;
-	return x < 0 ? -1 : 1;
-}
-Vector operator-(const Point& a, const Point& b)
-{
-	return Vector(b.x - a.x, b.y - a.y);
-}
-Vector operator-(const Vector& a, const Vector& b)
-{
-	return Vector(a.x - b.x, a.y - b.y);
-}
-Point operator+(const Point& a, const Vector& b)
-{
-	return Point(a.x + b.x, a.y + b.y);
-}
-double Cross(const Vector& a, const Vector& b)
-{
-	return a.x * b.y - a.y * b.x;
-}
 
 const int maxn = int(2e5) + 5;
 int n;
-Vector p[2];
+Point p[2];
 Point lamps[maxn];
 int K[maxn];
-
-#define RunInstance(x) delete new x
-struct brute
+LL Cross(const Point& a, const Point& b)
 {
-	int remain[maxn];
-	int ans[maxn];
+	return a.x * b.y - a.y * b.x;
+}
+bool comp(const int& a, const int& b)
+{
+	return lamps[a] < lamps[b];
+}
 
-	bool inRange(int from, int to)
+void discretize()
+{
+	static LL disc[maxn];
+	int bound;
+
+	bound = 0;
+	for (int i = 1; i <= n; i++)
+		disc[++bound] = lamps[i].x;
+	std::sort(disc + 1, disc + 1 + bound);
+	bound = std::unique(disc + 1, disc + 1 + bound) - (disc + 1);
+	for (int i = 1; i <= n; i++)
+		lamps[i].x = std::lower_bound(disc + 1, disc + 1 + bound, lamps[i].x) - disc;
+
+	bound = 0;
+	for (int i = 1; i <= n; i++)
+		disc[++bound] = lamps[i].y;
+	std::sort(disc + 1, disc + 1 + bound);
+	bound = std::unique(disc + 1, disc + 1 + bound) - (disc + 1);
+	for (int i = 1; i <= n; i++)
+		lamps[i].y = std::lower_bound(disc + 1, disc + 1 + bound, lamps[i].y) - disc;
+}
+
+struct BIT
+{
+	int c[maxn];
+	static inline int lowbit(int x) { return x & -x; }
+	void add(int pos, int val)
 	{
-		Vector mid = Vector((p[0].x + p[1].x) / 2, (p[0].y + p[1].y) / 2);
-		int test = dcmp(Cross(p[0], mid));
-		int test1 = dcmp(Cross(p[0], lamps[from] - lamps[to]));
-		int test2 = dcmp(Cross(lamps[from] - lamps[to], p[1]));
-		if (test == test1 && test == test2)
-			return true;
-		if (!test1 && test == test2)
-			return true;
-		if (test == test1 && !test2)
-			return true;
-		return false;
-	}
-	void shine(int idx, int t)
-	{
-		for (int i = t + 1; i <= n; i++)
+		while (pos <= n)
 		{
-			if (ans[i]) continue;
-			if (inRange(idx, i))
-			{
-				if (!(--remain[i]))
-				{
-					ans[i] = t;
-					shine(i, t);
-				}
-			}
+			c[pos] += val;
+			pos += lowbit(pos);
 		}
 	}
-
-	brute() : ans()
+	int query(int pos)
 	{
-		std::memcpy(remain, K, sizeof(remain));
-		for (int i = 1; i <= n; i++)
+		int ret = 0;
+		while (pos)
 		{
-			if (!ans[i])
-			{
-				ans[i] = i;
-				shine(i, i);
-			}
+			ret += c[pos];
+			pos ^= lowbit(pos);
 		}
+		return ret;
+	}
+} bit;
 
-		for (int i = 1; i <= n; i++)
+int idx[maxn];
+int d[maxn];
+int ans[maxn];
+void solve(int l, int r, int from, int to)
+{
+	if (l == r)
+	{
+		for (int i = from; i <= to; i++)
+			ans[idx[i]] = l;
+		return;
+	}
+	int mid = (l + r) >> 1;
+	int nr = from - 1;
+	int nl = to + 1;
+	for (int i = from; i <= to; i++)
+	{
+		int temp2 = bit.query(lamps[idx[i]].y);
+		int temp = (idx[i] <= mid) || (temp2 >= K[idx[i]]);
+		if (temp)
 		{
-			printOut(ans[i]);
-			putchar(' ');
+			d[++nr] = idx[i];
+			bit.add(lamps[idx[i]].y, 1);
+		}
+		else
+		{
+			d[--nl] = idx[i];
+			K[idx[i]] -= temp2;
 		}
 	}
-};
+	for (int i = from; i <= nr; i++)
+		bit.add(lamps[d[i]].y, -1);
+	for (int i = from; i <= to; i++)
+		idx[i] = d[i];
+	if (from <= nr)
+		solve(l, mid, from, nr);
+	if (nl <= to)
+	{
+		std::reverse(idx + nl, idx + to + 1);
+		solve(mid + 1, r, nl, to);
+	}
+}
 
 void run()
 {
 	n = readIn();
-	p[0].x = readIn();
-	p[0].y = readIn();
-	p[1].x = readIn();
-	p[1].y = readIn();
+	p[0].read();
+	p[1].read();
 	for (int i = 1; i <= n; i++)
-	{
-		lamps[i].x = readIn();
-		lamps[i].y = readIn();
-	}
+		lamps[i].read();
 	for (int i = 1; i <= n; i++)
 		K[i] = readIn();
 
-	if (n <= 1000)
-		RunInstance(brute);
+	if (!Cross(p[0], p[1]))
+	{
+		LL ratio = (INT_MAX >> 1) / std::max(p[0].x, p[0].y);
+		p[0].x *= ratio;
+		p[0].y *= ratio;
+		p[1] = p[0];
+		p[1].x--;
+	}
+	if (Cross(p[0], p[1]) < 0)
+		std::swap(p[0], p[1]);
+
+	for (int i = 1; i <= n; i++)
+	{
+		lamps[i] = Point(Cross(lamps[i], p[1]), Cross(p[0], lamps[i]));
+		lamps[i].idx = i;
+	}
+	discretize();
+
+	for (int i = 1; i <= n; i++)
+		idx[i] = i;
+	std::sort(idx + 1, idx + 1 + n, comp);
+	solve(1, n, 1, n);
+	for (int i = 1; i <= n; i++)
+	{
+		printOut(ans[i]);
+		putchar(' ');
+	}
 }
 
 int main()
