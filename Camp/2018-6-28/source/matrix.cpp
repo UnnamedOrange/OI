@@ -18,6 +18,7 @@
 #include <bitset>
 #include <list>
 #include <functional>
+#include <array>
 using LL = long long;
 using ULL = unsigned long long;
 using std::cin;
@@ -26,137 +27,142 @@ using std::endl;
 using INT_PUT = int;
 INT_PUT readIn()
 {
-	INT_PUT a = 0;
-	bool positive = true;
+	INT_PUT a = 0; bool positive = true;
 	char ch = getchar();
-	while (!(std::isdigit(ch) || ch == '-')) ch = getchar();
-	if (ch == '-')
-	{
-		positive = false;
-		ch = getchar();
-	}
-	while (std::isdigit(ch))
-	{
-		(a *= 10) -= ch - '0';
-		ch = getchar();
-	}
+	while (!(ch == '-' || std::isdigit(ch))) ch = getchar();
+	if (ch == '-') { positive = false; ch = getchar(); }
+	while (std::isdigit(ch)) { a = a * 10 - (ch - '0'); ch = getchar(); }
 	return positive ? -a : a;
 }
 void printOut(INT_PUT x)
 {
-	char buffer[20];
-	int length = 0;
-	if (x < 0) putchar('-');
-	else x = -x;
+	char buffer[20]; int length = 0;
+	if (x < 0) putchar('-'); else x = -x;
 	do buffer[length++] = -(x % 10) + '0'; while (x /= 10);
 	do putchar(buffer[--length]); while (length);
 }
 
+const int maxn = 11;
 int n, m, mod;
 
-#define RunInstance(x) delete new x
-struct cheat1
+struct Status
 {
-	int f[10005][2];
+	int val[maxn]{}; // 0 - 黑格子，x - 白格子及其连通性编号
+	bool operator<(const Status& b) const
+	{
+		for (int i = 0; i < maxn; i++)
+			if (val[i] != b.val[i])
+				return val[i] < b.val[i];
+		return false;
+	}
+	struct DS
+	{
+		int parent[maxn * 2 + 3];
+		void clear()
+		{
+			for (int i = 0; i < ((n + 1) << 1); i++)
+				parent[i] = i;
+		}
+		int find(int x)
+		{
+			return x == parent[x] ? x : (parent[x] = find(parent[x]));
+		}
+		void unite(int x, int y)
+		{
+			parent[find(y)] = find(x);
+		}
+		bool judge(int x, int y)
+		{
+			return find(x) == find(y);
+		}
+	};
+	bool makeTransfer(int S, Status& transTo)
+	{
+		// 相邻的不能是黑块
+		for (int i = 1; i < n; i++)
+			if (!(S & (1 << i)) && (!(S & (1 << (i - 1))) || !val[i]))
+				return false;
 
-	cheat1()
-	{
-		f[1][0] = 1;
-		f[1][1] = 2 % mod;
-		for (int i = 2; i <= m; i++)
-		{
-			f[i][0] = (f[i - 1][0] + f[i - 1][1]) % mod;
-			f[i][1] = (f[i - 1][0] << 1) % mod;
-		}
-		printOut((f[m][0] + f[m][1]) % mod);
-	}
-};
-struct brute
-{
-	static const int maxn = 25;
-	int rect[maxn][maxn];
-	bool vis[maxn][maxn];
-	int ans{};
-	void DFS(int x, int y)
-	{
-		vis[x][y] = true;
-		const int vecx[] = { 1, -1, 0, 0 };
-		const int vecy[] = { 0, 0, 1, -1 };
-		for (int i = 0; i < 4; i++)
-		{
-			int newx = x + vecx[i];
-			int newy = y + vecy[i];
-			if (1 <= newx && newx <= n && 1 <= newy && newy <= m &&
-				rect[newx][newy] && !vis[newx][newy])
-				DFS(newx, newy);
-		}
-	}
-	bool check()
-	{
-		memset(vis, 0, sizeof(vis));
-		bool started = false;
-		for (int i = 1; i <= n; i++)
-		{
-			for (int j = 1; j <= m; j++)
-			{
-				if (rect[i][j] && !vis[i][j])
-				{
-					if (started)
-						return false;
-					else
-					{
-						started = true;
-						DFS(i, j);
-					}
-				}
-			}
-		}
+		// 转移后上面的不能不连通
+		bool appear[maxn]{};
+		int maxBlock = 0;
+		for (int i = 0; i < n; i++)
+			maxBlock = std::max(maxBlock, val[i]);
+		for (int i = 0; i < n; i++)
+			if (S & (1 << i))
+				appear[val[i]] = true;
+		for (int i = 1; i <= maxBlock; i++)
+			if (!appear[i])
+				return false;
+
+		// 根据上一行的连通信息为转移后的行标号
+		static DS ds;
+		ds.clear();
+		int nBlock = 0;
+		for (int i = 0; i < n; i++)
+			if (S & (1 << i))
+				transTo.val[i] = (i && transTo.val[i - 1]) ? transTo.val[i - 1] : ++nBlock;
+			else
+				transTo.val[i] = 0;
+		for (int i = 0; i < n; i++)
+			if (val[i] && transTo.val[i])
+				ds.unite(transTo.val[i] + n, val[i]);
+
+		for (int i = 0; i < n; i++)
+			if (transTo.val[i])
+				transTo.val[i] = ds.find(transTo.val[i] + n);
+		int newIdx[maxn * 2 + 3]{};
+		nBlock = 0;
+		for (int i = 0; i < n; i++) if (transTo.val[i])
+			if (newIdx[transTo.val[i]])
+				transTo.val[i] = newIdx[transTo.val[i]];
+			else
+				transTo.val[i] = newIdx[transTo.val[i]] = ++nBlock;
 		return true;
 	}
-
-	int f[1 << 10]{};
-
-	void search(int x, int y)
-	{
-		if (y == m + 1)
-		{
-			bool t = check();
-			ans = (ans + t) % mod;
-			int S = 0;
-			for (int i = 1; i <= n; i++)
-				S |= (rect[i][m] << (i - 1));
-			f[S] = (f[S] + t) % mod;
-			return;
-		}
-		int newx = x + 1;
-		int newy = y;
-		if (newx > n)
-		{
-			newx = 1;
-			newy++;
-		}
-		rect[x][y] = 1;
-		search(newx, newy);
-		if ((x == 1 || rect[x - 1][y]) && (y == 1 || rect[x][y - 1]))
-		{
-			rect[x][y] = 0;
-			search(newx, newy);
-		}
-	}
-
-	brute()
-	{
-		search(1, 1);
-		printOut(ans);
-		putchar('\n');
-		for (int i = 0; i < (1 << n); i++)
-		{
-			printOut(f[i]);
-			putchar(' ');
-		}
-		putchar('\n');
-	}
 };
+std::map<Status, int> mapSI;
+const int maxStatus = 3500;
+Status status[maxStatus];
+std::vector<int> transfer[maxStatus];
+void search(int depth, int nBlock)
+{
+	static Status temp;
+	if (depth >= n)
+	{
+		mapSI[temp] = mapSI.size() + 1;
+		status[mapSI.size()] = temp;
+	}
+	else
+	{
+		for (int i = 0; i <= nBlock + 1; i++)
+		{
+			if (depth)
+			{
+				if (!i && !temp.val[depth - 1]) // 不能都是黑块
+					continue;
+				if (i && temp.val[depth - 1] && i != temp.val[depth - 1]) // 相邻白块标号必须一样
+					continue;
+			}
+			temp.val[depth] = i;
+			search(depth + 1, std::max(nBlock, i));
+		}
+	}
+}
+void initTransfer()
+{
+	int U = 1 << n;
+	for (int i = 1; i <= mapSI.size(); i++)
+		for (int S = 0; S < U; S++)
+		{
+			Status to;
+			if (status[i].makeTransfer(S, to))
+			{
+				assert(mapSI.count(to));
+				transfer[i].push_back(mapSI[to]);
+			}
+		}
+}
 
 void run()
 {
@@ -164,8 +170,13 @@ void run()
 	m = readIn();
 	mod = readIn();
 
-	if (n == 2)
-		RunInstance(cheat1);
+	search(0, 0);
+	initTransfer();
+
+	int count = 0;
+	for (int i = 1; i <= mapSI.size(); i++)
+		count += transfer[i].size();
+	cout << count << endl;
 }
 
 int main()
