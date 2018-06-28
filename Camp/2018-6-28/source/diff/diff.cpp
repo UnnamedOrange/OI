@@ -18,6 +18,135 @@ LL query(int x, int y)
 
 long long getMiniumDistance(int n, int m)
 {
+	double ratio = (3 - std::sqrt(5.0)) / 2;
+	int x, y;
+	double l, r;
+
+	l = 1;
+	r = n;
+	int t = std::round(1 + (m - 1) * ratio);
+	while (r - l > 4)
+	{
+		double divide3 = (r - l) * ratio;
+		double midl = l + divide3;
+		double midr = r - divide3;
+		LL val1 = query(std::round(midl), t);
+		LL val2 = query(std::round(midr), t);
+		if (val1 == val2)
+		{
+			l = midl;
+			r = midr;
+		}
+		else if (val1 > val2)
+		{
+			l = midl;
+		}
+		else if (val1 < val2)
+		{
+			r = midr;
+		}
+	}
+	x = std::round(l);
+	for (int i = x + 1; i <= std::round(r); i++)
+		if (query(i, t) < query(x, t))
+			x = i;
+
+	l = 1;
+	r = m;
+	while (r - l > 4)
+	{
+		double divide3 = (r - l) * ratio;
+		double midl = l + divide3;
+		double midr = r - divide3;
+		LL val1 = query(x, std::round(midl));
+		LL val2 = query(x, std::round(midr));
+		if (val1 == val2)
+		{
+			l = midl;
+			r = midr;
+		}
+		else if (val1 > val2)
+		{
+			l = midl;
+		}
+		else if (val1 < val2)
+		{
+			r = midr;
+		}
+	}
+	y = std::round(l);
+	for (int i = y + 1; i <= std::round(r); i++)
+		if (query(x, i) < query(x, y))
+			y = i;
+	return query(x, y);
+}
+
+long long getMiniumDistance3(int n, int m)
+{
+	int lx = 1, rx = n + 1;
+	int ly = 1, ry = m + 1;
+	while (rx - lx > 1 && ry - ly > 1)
+	{
+		int midx = (lx + rx) >> 1;
+		int midy = (ly + ry) >> 1;
+		LL val = query(midx, midy);
+		LL val1 = query(midx - 1, midy);
+		LL val2 = query(midx, midy - 1);
+		if (val1 == val)
+		{
+			lx = midx - 1;
+			rx = midx;
+		}
+		else if (val1 > val)
+			lx = midx;
+		else if (val1 < val)
+			rx = midx;
+
+		if (val2 == val)
+		{
+			ly = midy - 1;
+			ry = midy;
+		}
+		else if (val2 > val)
+			ly = midy;
+		else if (val2 < val)
+			ry = midy;
+	}
+	while (rx - lx > 1)
+	{
+		int midx = (lx + rx) >> 1;
+		LL val = query(midx, ly);
+		LL val1 = query(midx - 1, ly);
+		if (val1 == val)
+		{
+			lx = midx - 1;
+			rx = midx;
+		}
+		else if (val1 > val)
+			lx = midx;
+		else if (val1 < val)
+			rx = midx;
+	}
+	while (ry - ly > 1)
+	{
+		int midy = (ly + ry) >> 1;
+		LL val = query(lx, midy);
+		LL val1 = query(lx, midy - 1);
+		if (val1 == val)
+		{
+			ly = midy - 1;
+			ry = midy;
+		}
+		else if (val1 > val)
+			ly = midy;
+		else if (val1 < val)
+			ry = midy;
+	}
+	return query(lx, ly);
+}
+
+long long getMiniumDistance2(int n, int m)
+{
 	int x, y;
 
 	int l, r;
@@ -66,7 +195,7 @@ long long getMiniumDistance(int n, int m)
 	return query(x, y);
 }
 
-long long getMiniumDistance2(int n, int m)
+long long getMiniumDistance1(int n, int m)
 {
 	int x, y;
 
