@@ -59,7 +59,7 @@ int n;
 char str[maxn];
 
 #define RunInstance(x) delete new x
-struct brute
+struct brute1
 {
 	static inline void DebugPrint(int S)
 	{
@@ -125,7 +125,7 @@ struct brute
 		}
 	}
 
-	brute() : ans()
+	brute1() : ans()
 	{
 		std::memset(f, -1, sizeof(f));
 #ifdef LOCAL
@@ -138,6 +138,86 @@ struct brute
 		printOut(ans);
 	}
 };
+struct brute2
+{
+	static const int maxN = 505;
+	int SG[maxN];
+	int temp[maxN];
+	int f[maxN][100];
+	brute2() : f()
+	{
+		SG[0] = 0;
+		for (int i = 1; i < n; i++)
+		{
+			temp[0] = 0;
+			for (int j = i - 1; j + j - i >= 0; j--)
+				temp[++temp[0]] = SG[j] ^ SG[j + j - i];
+			std::sort(temp + 1, temp + 1 + temp[0]);
+			temp[0] = std::unique(temp + 1, temp + 1 + temp[0]) - (temp + 1);
+
+			int& ans = SG[i];
+			for (ans = 0; ans + 1 <= temp[0]; ans++)
+				if (temp[ans + 1] != ans)
+					break;
+			if (ans)
+				ans = temp[ans] + 1;
+		}
+
+		f[0][0] = 1 + (str[0] == '?');
+		for (int i = 1; i < n; i++)
+		{
+			for (int j = 0; j < 32; j++)
+			{
+				if (str[i] == '0')
+					f[i][j] = f[i - 1][j];
+				else if (str[i] == '1')
+					f[i][j] = f[i - 1][j ^ SG[i]];
+				else if (str[i] == '?')
+					f[i][j] = (f[i - 1][j] + f[i - 1][j ^ SG[i]]) % mod;
+			}
+		}
+		int ans = 0;
+		for (int i = 1; i < 32; i++)
+			ans = (ans + f[n - 1][i]) % mod;
+		printOut(ans);
+	}
+};
+const int table[] = { 1, 2, 4, 7, 8, 11, 13, 14, 16, 19, 21 };
+struct work
+{
+	int SG[maxn];
+	int f[maxn][100];
+
+	work() : f()
+	{
+		SG[0] = 0;
+		for (int r = 1, cnt = 0; r <= n; r *= 3, cnt++)
+		{
+			for (int i = r; i < std::min(n, r + r); i++)
+				SG[i] = SG[i - r];
+			for (int i = r + r; i < std::min(n, r * 3); i++)
+				SG[i] = SG[i - r] ? SG[i - r] : table[cnt];
+		}
+
+		f[0][0] = 1 + (str[0] == '?');
+		for (int i = 1; i < n; i++)
+		{
+			for (int j = 0; j < 32; j++)
+			{
+				if (str[i] == '0')
+					f[i][j] = f[i - 1][j];
+				else if (str[i] == '1')
+					f[i][j] = f[i - 1][j ^ SG[i]];
+				else if (str[i] == '?')
+					f[i][j] = (f[i - 1][j] + f[i - 1][j ^ SG[i]]) % mod;
+			}
+		}
+		int ans = 0;
+		for (int i = 1; i < 32; i++)
+			ans = (ans + f[n - 1][i]) % mod;
+		printOut(ans);
+	}
+};
 
 void run()
 {
@@ -145,7 +225,11 @@ void run()
 	n = strlen(str);
 
 	if (n <= 10)
-		RunInstance(brute);
+		RunInstance(brute1);
+	else if (n <= 500)
+		RunInstance(brute2);
+	else
+		RunInstance(work);
 }
 
 int main()
