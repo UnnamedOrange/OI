@@ -160,7 +160,7 @@ void solve(int l, int r, int from, int to)
 		solve(l, mid, from, lEnd);
 	if (rBegin <= to)
 	{
-		std::reverse(idx + rBegin, idx + to + 1);
+		// std::reverse(idx + rBegin, idx + to + 1); // ¿ÉÒÔ²»Ð´
 		solve(mid + 1, r, rBegin, to);
 	}
 }
