@@ -144,7 +144,7 @@ struct Min_25
 					e++, power *= prime[j], // note：别忘了 power 不能取模
 					f = f * prime[j] % mod)
 				{
-					s[i] += f * (gets(appear[i] / power) - gets(prime[j]) + prime[j]); // note：这里把最后那个写进来了
+					s[i] += f * (gets(appear[i] / power) - (sum[j] - j) + prime[j]); // note：不能写 gets(prime[j])，它可能没有编号；这里把最后那个写进来了
 					s[i] %= mod;
 				}
 			}

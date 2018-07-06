@@ -39,21 +39,27 @@ void printOut(INT_PUT x)
 	if (x < 0) putchar('-'); else x = -x;
 	do buffer[length++] = -(x % 10) + '0'; while (x /= 10);
 	do putchar(buffer[--length]); while (length);
+	putchar('\n');
 }
 
 struct Min_25
 {
-	static const int maxn = int(1e5);
-	int isntprime[maxn + 5];
-	int prime[maxn];
+	static const int maxn = 320000;
+	bool isntprime[maxn + 5];
+	int prime[27609];
+	LL sum[27609];
 	Min_25() : isntprime()
 	{
+		sum[0] = 0;
 		prime[0] = 0;
 		isntprime[1] = true;
 		for (int i = 2; i <= maxn; i++)
 		{
 			if (!isntprime[i])
+			{
 				prime[++prime[0]] = i;
+				sum[prime[0]] = sum[prime[0] - 1] + i;
+			}
 			for (int j = 1, p = prime[j], s = i * p; j <= prime[0] && s <= maxn; j++, p = prime[j], s = i * p)
 			{
 				isntprime[s] = true;
@@ -66,17 +72,17 @@ struct Min_25
 	LL n;
 	int sqrtN;
 	int k;
-
 	int N;
-	LL appear[maxn * 2 + 5];
-	int id[2][maxn + 5];
+	int id[2][maxn];
+	LL appear[maxn * 2];
 	void initBlocks()
 	{
 		N = 0;
 		for (LL i = 1, t; n / i > 1; i = t + 1)
 		{
-			t = n / (n / i);
-			LL a = appear[++N] = n / i;
+			LL a = n / i;
+			t = n / a;
+			appear[++N] = a;
 			if (a <= sqrtN) id[0][a] = N;
 			else id[1][n / a] = N;
 		}
@@ -86,12 +92,13 @@ struct Min_25
 		if (x <= sqrtN) return id[0][x];
 		else return id[1][n / x];
 	}
-	LL g[maxn * 2 + 5];
-	LL s[maxn * 2 + 5];
+	LL g[maxn * 2];
+	LL s[maxn * 2];
 	void solveG()
 	{
 		for (int i = 1; i <= N; i++)
 			g[i] = appear[i] - 1;
+
 		for (int j = 1, p = prime[j]; j <= k; j++, p = prime[j])
 			for (int i = 1; i <= N && (LL)p * p <= appear[i]; i++)
 				g[i] -= g[getId(appear[i] / p)] - (j - 1);
@@ -99,14 +106,19 @@ struct Min_25
 	void solveS()
 	{
 		for (int i = 1; i <= N; i++)
-			s[i] = -g[i];
+			s[i] = 4ll * g[i];
 		for (int j = k, p = prime[j]; j; j--, p = prime[j])
 			for (int i = 1; i <= N && (LL)p * p <= appear[i]; i++)
-				s[i] += -(s[getId(appear[i] / p)] - (-j)); // note：mu 就不用枚举了，上面全是 0
+			{
+				LL power = p;
+				for (int e = 1; p <= appear[i] / power; e++, power *= p)
+					s[i] += (LL)(3 * e + 1) * (s[getId(appear[i] / power)] - (LL)4 * j) + (3 * e + 4);
+			}
 	}
 
 	LL operator()(LL param)
 	{
+		s[1] = 0; // note
 		n = param;
 		sqrtN = std::sqrt(n);
 		k = std::upper_bound(prime + 1, prime + 1 + prime[0], sqrtN) - prime - 1;
@@ -119,9 +131,9 @@ struct Min_25
 
 void run()
 {
-	LL from = readIn();
-	LL to = readIn();
-	printOut(min_25(to) - min_25(from - 1));
+	int T = readIn();
+	while (T--)
+		printOut(min_25(readIn()));
 }
 
 int main()
